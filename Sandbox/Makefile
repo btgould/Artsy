@@ -94,6 +94,7 @@ endif
 OBJECTS := \
 	$(OBJDIR)/Application.o \
 	$(OBJDIR)/IndexBuffer.o \
+	$(OBJDIR)/Shader.o \
 	$(OBJDIR)/VertexArray.o \
 	$(OBJDIR)/VertexBuffer.o \
 
@@ -158,6 +159,9 @@ $(OBJDIR)/Application.o: src/Application.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/IndexBuffer.o: src/IndexBuffer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Shader.o: src/Shader.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/VertexArray.o: src/VertexArray.cpp

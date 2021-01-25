@@ -9,83 +9,7 @@
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 #include "VertexArray.hpp"
-
-// compiles a shader from source code and returns its ID
-static unsigned int compileShader(unsigned int type,
-								  const std::string& source) {
-	GL_CALL(unsigned int id = glCreateShader(type));
-	const char* src = source.c_str();
-	GL_CALL(glShaderSource(id, 1, &src, nullptr));
-	GL_CALL(glCompileShader(id));
-
-	// check for compilation errors
-	int result;
-	GL_CALL(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
-	if (result == GL_FALSE) {
-		int length;
-		GL_CALL(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
-		char* msg = (char*) alloca(length * sizeof(char));
-		GL_CALL(glGetShaderInfoLog(id, length, &length, msg));
-		std::cout << "Failed to compile "
-				  << ((type == GL_VERTEX_SHADER) ? "vertex" : "fragment")
-				  << " shader" << std::endl;
-		std::cout << msg << std::endl;
-		GL_CALL(glDeleteShader(id));
-		return 0;
-	}
-
-	return id;
-}
-
-// compliles shaders from source, links into a program, returns its ID
-static unsigned int createShader(const std::string& vertexShader,
-								 const std::string& fragmentShader) {
-	unsigned int program = glCreateProgram();
-	unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
-	unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-	GL_CALL(glAttachShader(program, vs));
-	GL_CALL(glAttachShader(program, fs));
-	GL_CALL(glLinkProgram(program));
-	GL_CALL(glValidateProgram(program));
-
-	GL_CALL(glDeleteShader(vs));
-	GL_CALL(glDeleteShader(fs));
-
-	return program;
-}
-
-struct ShaderProgramSource {
-	std::string vertexSource;
-	std::string fragmentSource;
-};
-
-// get source for each shader from shader file
-static ShaderProgramSource parseShader(const std::string& filepath) {
-	std::ifstream stream(filepath);
-
-	enum class ShaderType { NONE = -1, VERTEX = 0, FRAGMENT = 1 };
-
-	std::stringstream ss[2];
-	ShaderType type = ShaderType::NONE;
-
-	std::string line;
-	while (getline(stream, line)) {
-		if (line.find("#shader") != std::string::npos) {
-			// declaration of a shader -> find type
-			if (line.find("vertex") != std::string::npos) {
-				type = ShaderType::VERTEX;
-			} else if (line.find("fragment") != std::string::npos) {
-				type = ShaderType::FRAGMENT;
-			}
-		} else {
-			// add line to current shader code
-			ss[(int) type] << line << "\n";
-		}
-	}
-
-	return {ss[0].str(), ss[1].str()};
-}
+#include "Shader.hpp"
 
 int main(void) {
 
@@ -131,34 +55,25 @@ int main(void) {
 	// indices of vertices to render
 	unsigned int indices[] {0, 1, 2, 2, 3, 0};
 
-	// create vertex array object
-	VertexArray va;
-
 	// create vertex buffer from positions array
 	VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
 	// create and define the layout of our vertexes (2 floats per vertex)
+	VertexArray va;
 	VertexBufferLayout layout;
 	layout.Push<float>(2);
-
-	// bind the current buffer and layout to the vertex array
 	va.addBuffer(vb, layout);
 
-	// set list of indices to draw
 	IndexBuffer ib(indices, 6);
-	ib.Bind();
 
-	// create shaders from source code
-	ShaderProgramSource source =
-		parseShader("Sandbox/res/shaders/Basic.shader");
+	Shader shader("Sandbox/res/shaders/Basic.shader");
+	shader.Bind();
+	shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
 
-	unsigned int shader =
-		createShader(source.vertexSource, source.fragmentSource);
-	GL_CALL(glUseProgram(shader));
-
-	// get location of uniform used in shader
-	GL_CALL(int location = glGetUniformLocation(shader, "u_Color"));
-	ASSERT(location != -1);
+	vb.Unbind();
+	ib.Unbind();
+	va.Unbind();
+	shader.Unbind();
 
 	float r = 0.0f;
 	float increment = 0.05f;
@@ -168,6 +83,12 @@ int main(void) {
 		/* Render here */
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 
+		va.Bind();
+		ib.Bind();
+
+		shader.Bind();
+		shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
+
 		// update color
 		if (r > 1)
 			increment = -0.05f;
@@ -175,8 +96,6 @@ int main(void) {
 			increment = 0.05f;
 
 		r += increment;
-
-		GL_CALL(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
 
 		// draw currently bounds buffer using list of indices
 		GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
@@ -187,8 +106,6 @@ int main(void) {
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
-
-	GL_CALL(glDeleteProgram(shader));
 
 	glfwTerminate();
 	return 0;
