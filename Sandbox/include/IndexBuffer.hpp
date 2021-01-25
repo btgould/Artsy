@@ -1,5 +1,8 @@
 #pragma once
 
+// Class to encapsulate the representation of an index buffer. Index buffers
+// keep track of the indexes of which vertices to render, and the order to do
+// so.
 class IndexBuffer {
   private:
 	unsigned int m_RendererID;

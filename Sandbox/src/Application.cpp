@@ -8,6 +8,7 @@
 #include "glutil.hpp"
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
+#include "VertexArray.hpp"
 
 // compiles a shader from source code and returns its ID
 static unsigned int compileShader(unsigned int type,
@@ -131,24 +132,21 @@ int main(void) {
 	unsigned int indices[] {0, 1, 2, 2, 3, 0};
 
 	// create vertex array object
-	unsigned int vao;
-	GL_CALL(glGenVertexArrays(1, &vao));
-	GL_CALL(glBindVertexArray(vao));
+	VertexArray va;
 
-	// creating chunk of data to store info about what to draw,
-	// set it as active (bound) buffer
+	// create vertex buffer from positions array
 	VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
-	// enable first vertex attribute
-	GL_CALL(glEnableVertexAttribArray(0));
-	// define structure of first vertex attribute, bind to current vertex buffer
-	// (index, size, type, normalized, stride (distance to next attribute),
-	// pointer (offset from start of vertex))
-	GL_CALL(
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
+	// create and define the layout of our vertexes (2 floats per vertex)
+	VertexBufferLayout layout;
+	layout.Push<float>(2);
+
+	// bind the current buffer and layout to the vertex array
+	va.addBuffer(vb, layout);
 
 	// set list of indices to draw
 	IndexBuffer ib(indices, 6);
+	ib.Bind();
 
 	// create shaders from source code
 	ShaderProgramSource source =
