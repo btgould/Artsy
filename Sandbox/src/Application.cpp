@@ -10,6 +10,7 @@
 #include "IndexBuffer.hpp"
 #include "VertexArray.hpp"
 #include "Shader.hpp"
+#include "Renderer.hpp"
 
 int main(void) {
 
@@ -75,16 +76,15 @@ int main(void) {
 	va.Unbind();
 	shader.Unbind();
 
+	Renderer renderer;
+
 	float r = 0.0f;
 	float increment = 0.05f;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */
-		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
-
-		va.Bind();
-		ib.Bind();
+		renderer.Clear();
 
 		shader.Bind();
 		shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
@@ -97,8 +97,7 @@ int main(void) {
 
 		r += increment;
 
-		// draw currently bounds buffer using list of indices
-		GL_CALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+		renderer.Draw(va, ib, shader);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
