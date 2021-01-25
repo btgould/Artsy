@@ -22,7 +22,8 @@ project "Sandbox"
 
     includedirs {
         "Dependencies/GLFW/include",
-        "Dependencies/GLEW/include"
+        "Dependencies/GLEW/include",
+        "Sandbox/include"
     }
 
     -- buildoptions { "'pkg-config --cflags glfw3'" }

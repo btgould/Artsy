@@ -1,38 +1,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <signal.h>
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
-// error handling macros
-// -----------------------------------------------------------------------------
-#define ASSERT(x)                                                              \
-	if (!(x)) {                                                                \
-		raise(SIGINT);                                                         \
-	}
-
-#define GL_CALL(x)                                                             \
-	glClearError();                                                            \
-	x;                                                                         \
-	ASSERT(glLogCall(#x, __FILE__, __LINE__))
-
-static void glClearError() {
-	while (glGetError() != GL_NO_ERROR)
-		;
-}
-
-static bool glLogCall(const char* function, const char* file, int line) {
-	while (GLenum error = glGetError()) {
-		std::cout << "[OpenGL ERROR]: " << error << " in " << function << " in "
-				  << file << ":" << line << std::endl;
-		return false;
-	}
-
-	return true;
-}
+#include "glutil.hpp"
+#include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
 
 // compiles a shader from source code and returns its ID
 static unsigned int compileShader(unsigned int type,
@@ -112,16 +87,24 @@ static ShaderProgramSource parseShader(const std::string& filepath) {
 }
 
 int main(void) {
+
 	GLFWwindow* window;
 
 	/* Initialize the library */
-	if (!glfwInit())
+	if (!glfwInit()) {
+		std::cout << "[ERROR]: GLFW failed to initialize" << std::endl;
 		return -1;
+	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
 	if (!window) {
 		GL_CALL(glfwTerminate());
+		std::cout << "[ERROR]: Window could not be created" << std::endl;
 		return -1;
 	}
 
@@ -132,7 +115,9 @@ int main(void) {
 	glfwSwapInterval(1);
 
 	if (glewInit() != GLEW_OK)
-		std::cout << "GLEW failed to initialize" << std::endl;
+		std::cout << "[ERROR]: GLEW failed to initialize" << std::endl;
+
+	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
 	// positions of vertices to render
 	float positions[8] = {
@@ -145,42 +130,37 @@ int main(void) {
 	// indices of vertices to render
 	unsigned int indices[] {0, 1, 2, 2, 3, 0};
 
+	// create vertex array object
+	unsigned int vao;
+	GL_CALL(glGenVertexArrays(1, &vao));
+	GL_CALL(glBindVertexArray(vao));
+
 	// creating chunk of data to store info about what to draw,
 	// set it as active (bound) buffer
-	unsigned int buffer;
-	GL_CALL(glGenBuffers(1, &buffer));
-	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, buffer));
-	GL_CALL(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions,
-						 GL_STATIC_DRAW));
+	VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
+	// enable first vertex attribute
 	GL_CALL(glEnableVertexAttribArray(0));
+	// define structure of first vertex attribute, bind to current vertex buffer
+	// (index, size, type, normalized, stride (distance to next attribute),
+	// pointer (offset from start of vertex))
 	GL_CALL(
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
 
 	// set list of indices to draw
-	unsigned int ibo;
-	GL_CALL(glGenBuffers(1, &ibo));
-	GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-	GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * 2 * sizeof(unsigned int),
-						 indices, GL_STATIC_DRAW));
+	IndexBuffer ib(indices, 6);
 
 	// create shaders from source code
 	ShaderProgramSource source =
 		parseShader("Sandbox/res/shaders/Basic.shader");
 
-	// std::cout << "VERTEX" << std::endl;
-	// std::cout << source.vertexSource << std::endl;
-	// std::cout << "FRAGMENT" << std::endl;
-	// std::cout << source.fragmentSource << std::endl;
-
 	unsigned int shader =
 		createShader(source.vertexSource, source.fragmentSource);
 	GL_CALL(glUseProgram(shader));
 
-	// send 4 floats as a uniform to the GPU
+	// get location of uniform used in shader
 	GL_CALL(int location = glGetUniformLocation(shader, "u_Color"));
 	ASSERT(location != -1);
-	GL_CALL(glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f));
 
 	float r = 0.0f;
 	float increment = 0.05f;

@@ -16,7 +16,7 @@ ifeq ($(config),debug)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Debug-linux-x86_64/Sandbox
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
@@ -43,7 +43,7 @@ ifeq ($(config),release)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Release-linux-x86_64/Sandbox
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
@@ -70,7 +70,7 @@ ifeq ($(config),dist)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Dist-linux-x86_64/Sandbox
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
@@ -93,6 +93,8 @@ endif
 
 OBJECTS := \
 	$(OBJDIR)/Application.o \
+	$(OBJDIR)/IndexBuffer.o \
+	$(OBJDIR)/VertexBuffer.o \
 
 RESOURCES := \
 
@@ -152,6 +154,12 @@ $(OBJECTS): | $(OBJDIR)
 endif
 
 $(OBJDIR)/Application.o: src/Application.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/IndexBuffer.o: src/IndexBuffer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/VertexBuffer.o: src/VertexBuffer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 
