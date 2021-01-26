@@ -2,6 +2,9 @@
 
 #include "glutil.hpp"
 
+// Class to encapsulate the representation of an index buffer. Index buffers
+// keep track of the indexes of which vertices to render, and the order to do
+// so.
 IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count)
 	: m_Count(count) {
 	GL_CALL(glGenBuffers(1, &m_RendererID));

@@ -13,6 +13,9 @@
 #include "Renderer.hpp"
 #include "Texture.hpp"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 int main(void) {
 
 	GLFWwindow* window;
@@ -28,7 +31,7 @@ int main(void) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
 	if (!window) {
 		GL_CALL(glfwTerminate());
 		std::cout << "[ERROR]: Window could not be created" << std::endl;
@@ -52,10 +55,10 @@ int main(void) {
 
 	// positions of vertices to render
 	float positions[] = {
-		-0.5f, -0.5f, 0.0f, 0.0f, // 0
-		0.5f,  -0.5f, 1.0f, 0.0f, // 1
-		0.5f,  0.5f,  1.0f, 1.0f, // 2
-		-0.5f, 0.5f,  0.0f, 1.0f  // 3
+		100.0f, 100.0f, 0.0f, 0.0f, // 0
+		200.0f, 100.0f, 1.0f, 0.0f, // 1
+		200.0f, 200.0f, 1.0f, 1.0f, // 2
+		100.0f, 200.0f, 0.0f, 1.0f	// 3
 	};
 
 	// indices of vertices to render
@@ -73,9 +76,20 @@ int main(void) {
 
 	IndexBuffer ib(indices, 6);
 
+	// TRANSFORM: represents tanslation, rotation, and scale of something
+	// model matrix describes transform of object being drawn
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0));
+	// view matrix describes transform of camera
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+	// projection matrix maps vertex positions to rendering space([-1, 1])
+	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+
+	glm::mat4 mvp = proj * view * model;
+
 	Shader shader("Sandbox/res/shaders/Basic.shader");
 	shader.Bind();
 	shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+	shader.SetUniformMat4f("u_MVP", mvp);
 
 	Texture texture("Sandbox/res/textures/Code.png");
 	texture.Bind(0);
