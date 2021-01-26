@@ -16,7 +16,7 @@ ifeq ($(config),debug)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Debug-linux-x86_64/Sandbox
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude -Ivendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
@@ -43,7 +43,7 @@ ifeq ($(config),release)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Release-linux-x86_64/Sandbox
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude -Ivendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
@@ -70,7 +70,7 @@ ifeq ($(config),dist)
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Dist-linux-x86_64/Sandbox
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude -Ivendor/stb_image
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
@@ -96,8 +96,10 @@ OBJECTS := \
 	$(OBJDIR)/IndexBuffer.o \
 	$(OBJDIR)/Renderer.o \
 	$(OBJDIR)/Shader.o \
+	$(OBJDIR)/Texture.o \
 	$(OBJDIR)/VertexArray.o \
 	$(OBJDIR)/VertexBuffer.o \
+	$(OBJDIR)/stb_image.o \
 
 RESOURCES := \
 
@@ -168,10 +170,16 @@ $(OBJDIR)/Renderer.o: src/Renderer.cpp
 $(OBJDIR)/Shader.o: src/Shader.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Texture.o: src/Texture.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/VertexArray.o: src/VertexArray.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/VertexBuffer.o: src/VertexBuffer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/stb_image.o: vendor/stb_image/stb_image.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 

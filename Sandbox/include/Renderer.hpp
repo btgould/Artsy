@@ -4,6 +4,7 @@
 #include "IndexBuffer.hpp"
 #include "Shader.hpp"
 
+// Class representing a renderer to simplify OpenGL draw calls.
 class Renderer {
   public:
 	Renderer();

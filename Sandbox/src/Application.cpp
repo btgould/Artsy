@@ -11,6 +11,7 @@
 #include "VertexArray.hpp"
 #include "Shader.hpp"
 #include "Renderer.hpp"
+#include "Texture.hpp"
 
 int main(void) {
 
@@ -40,28 +41,33 @@ int main(void) {
 	// don't update buffers more than once per screen update
 	glfwSwapInterval(1);
 
+	// enable blending transparent values
+	GL_CALL(glEnable(GL_BLEND));
+	GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
 	if (glewInit() != GLEW_OK)
 		std::cout << "[ERROR]: GLEW failed to initialize" << std::endl;
 
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
 	// positions of vertices to render
-	float positions[8] = {
-		-0.5f, -0.5f, // 0
-		0.5f,  -0.5f, // 1
-		0.5f,  0.5f,  // 2
-		-0.5f, 0.5f	  // 3
+	float positions[] = {
+		-0.5f, -0.5f, 0.0f, 0.0f, // 0
+		0.5f,  -0.5f, 1.0f, 0.0f, // 1
+		0.5f,  0.5f,  1.0f, 1.0f, // 2
+		-0.5f, 0.5f,  0.0f, 1.0f  // 3
 	};
 
 	// indices of vertices to render
 	unsigned int indices[] {0, 1, 2, 2, 3, 0};
 
 	// create vertex buffer from positions array
-	VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+	VertexBuffer vb(positions, 4 * 4 * sizeof(float));
 
 	// create and define the layout of our vertexes (2 floats per vertex)
 	VertexArray va;
 	VertexBufferLayout layout;
+	layout.Push<float>(2);
 	layout.Push<float>(2);
 	va.addBuffer(vb, layout);
 
@@ -70,6 +76,10 @@ int main(void) {
 	Shader shader("Sandbox/res/shaders/Basic.shader");
 	shader.Bind();
 	shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+
+	Texture texture("Sandbox/res/textures/Code.png");
+	texture.Bind(0);
+	shader.SetUniform1i("u_Texture", 0);
 
 	vb.Unbind();
 	ib.Unbind();
