@@ -16,6 +16,9 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
+
 int main(void) {
 
 	GLFWwindow* window;
@@ -88,8 +91,6 @@ int main(void) {
 
 	Shader shader("Sandbox/res/shaders/Basic.shader");
 	shader.Bind();
-	shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
-	shader.SetUniformMat4f("u_MVP", mvp);
 
 	Texture texture("Sandbox/res/textures/Code.png");
 	texture.Bind(0);
@@ -102,26 +103,42 @@ int main(void) {
 
 	Renderer renderer;
 
-	float r = 0.0f;
-	float increment = 0.05f;
+	ImGui::CreateContext();
+	ImGui_ImplGlfwGL3_Init(window, true);
+	ImGui::StyleColorsDark();
+
+	glm::vec3 translation(200, 200, 0);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */
 		renderer.Clear();
 
+		ImGui_ImplGlfwGL3_NewFrame();
+
+		model = glm::translate(glm::mat4(1.0f), translation);
+		mvp = proj * view * model;
+
 		shader.Bind();
-		shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
-
-		// update color
-		if (r > 1)
-			increment = -0.05f;
-		else if (r < 0)
-			increment = 0.05f;
-
-		r += increment;
+		shader.SetUniformMat4f("u_MVP", mvp);
 
 		renderer.Draw(va, ib, shader);
+
+		// 1. Show a simple window.
+		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets
+		// automatically appears in a window called "Debug".
+		{
+			static float f = 0.0f;
+
+			ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+						1000.0f / ImGui::GetIO().Framerate,
+						ImGui::GetIO().Framerate);
+		}
+
+		ImGui::Render();
+		ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -130,6 +147,8 @@ int main(void) {
 		glfwPollEvents();
 	}
 
+	ImGui_ImplGlfwGL3_Shutdown();
+	ImGui::DestroyContext();
 	glfwTerminate();
 	return 0;
 }

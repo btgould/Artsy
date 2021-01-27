@@ -18,14 +18,16 @@ project "Sandbox"
 
     files {
         "%{prj.location}/src/**.cpp",
-        "%{prj.location}/vendor/stb_image/stb_image.cpp"
+        "%{prj.location}/vendor/stb_image/stb_image.cpp",
+        "%{prj.location}/vendor/imgui/*.cpp",
+        "%{prj.location}/vendor/imgui/*.h"
     }
 
     includedirs {
         "Dependencies/GLFW/include",
         "Dependencies/GLEW/include",
         "Sandbox/include",
-        "Sandbox/vendor/**"
+        "Sandbox/vendor"
     }
 
     -- buildoptions { "'pkg-config --cflags glfw3'" }
