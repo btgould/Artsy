@@ -15,9 +15,11 @@ ifeq ($(config),debug)
   TARGETDIR = ../bin/Debug-linux-x86_64/Sandbox
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Debug-linux-x86_64/Sandbox
+  PCH = src/artsypch.hpp
+  GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude -Ivendor
-  FORCE_INCLUDE +=
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Ivendor -Ires -Isrc -Ivendor/stb_image -Ivendor/imgui -Ires/shaders -Ires/textures -Isrc/Events -Isrc/Application -Isrc/Windows -Isrc/Buffers -Isrc/Rendering
+  FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64
@@ -42,9 +44,11 @@ ifeq ($(config),release)
   TARGETDIR = ../bin/Release-linux-x86_64/Sandbox
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Release-linux-x86_64/Sandbox
+  PCH = src/artsypch.hpp
+  GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude -Ivendor
-  FORCE_INCLUDE +=
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Ivendor -Ires -Isrc -Ivendor/stb_image -Ivendor/imgui -Ires/shaders -Ires/textures -Isrc/Events -Isrc/Application -Isrc/Windows -Isrc/Buffers -Isrc/Rendering
+  FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64
@@ -69,9 +73,11 @@ ifeq ($(config),dist)
   TARGETDIR = ../bin/Dist-linux-x86_64/Sandbox
   TARGET = $(TARGETDIR)/Sandbox
   OBJDIR = ../bin-int/Dist-linux-x86_64/Sandbox
+  PCH = src/artsypch.hpp
+  GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Iinclude -Ivendor
-  FORCE_INCLUDE +=
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Ivendor -Ires -Isrc -Ivendor/stb_image -Ivendor/imgui -Ires/shaders -Ires/textures -Isrc/Events -Isrc/Application -Isrc/Windows -Isrc/Buffers -Isrc/Rendering
+  FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64
@@ -93,12 +99,16 @@ endif
 
 OBJECTS := \
 	$(OBJDIR)/Application.o \
+	$(OBJDIR)/Layer.o \
+	$(OBJDIR)/LayerStack.o \
 	$(OBJDIR)/IndexBuffer.o \
+	$(OBJDIR)/VertexArray.o \
+	$(OBJDIR)/VertexBuffer.o \
+	$(OBJDIR)/Main.o \
 	$(OBJDIR)/Renderer.o \
 	$(OBJDIR)/Shader.o \
 	$(OBJDIR)/Texture.o \
-	$(OBJDIR)/VertexArray.o \
-	$(OBJDIR)/VertexBuffer.o \
+	$(OBJDIR)/LinuxWindow.o \
 	$(OBJDIR)/imgui.o \
 	$(OBJDIR)/imgui_demo.o \
 	$(OBJDIR)/imgui_draw.o \
@@ -162,25 +172,37 @@ else
 $(OBJECTS): | $(OBJDIR)
 endif
 
-$(OBJDIR)/Application.o: src/Application.cpp
+$(OBJDIR)/Application.o: src/Application/Application.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/IndexBuffer.o: src/IndexBuffer.cpp
+$(OBJDIR)/Layer.o: src/Application/Layer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/Renderer.o: src/Renderer.cpp
+$(OBJDIR)/LayerStack.o: src/Application/LayerStack.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/Shader.o: src/Shader.cpp
+$(OBJDIR)/IndexBuffer.o: src/Buffers/IndexBuffer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/Texture.o: src/Texture.cpp
+$(OBJDIR)/VertexArray.o: src/Buffers/VertexArray.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/VertexArray.o: src/VertexArray.cpp
+$(OBJDIR)/VertexBuffer.o: src/Buffers/VertexBuffer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/VertexBuffer.o: src/VertexBuffer.cpp
+$(OBJDIR)/Main.o: src/Main.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Renderer.o: src/Rendering/Renderer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Shader.o: src/Rendering/Shader.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Texture.o: src/Rendering/Texture.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/LinuxWindow.o: src/Windows/LinuxWindow.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/imgui.o: vendor/imgui/imgui.cpp

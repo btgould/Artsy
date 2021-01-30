@@ -1,7 +1,7 @@
 #pragma once
 
-#include "VertexArray.hpp"
-#include "IndexBuffer.hpp"
+#include "Buffers/VertexArray.hpp"
+#include "Buffers/IndexBuffer.hpp"
 #include "Shader.hpp"
 
 // Class representing a renderer to simplify OpenGL draw calls.

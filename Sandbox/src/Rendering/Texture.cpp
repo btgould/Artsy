@@ -1,6 +1,6 @@
 #include "Texture.hpp"
 
-#include "stb_image.h"
+#include "stb_image/stb_image.h"
 
 // Creates a texture from the image at the given filepath.
 Texture::Texture(const std::string& path)

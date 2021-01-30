@@ -1,6 +1,5 @@
-# OpenGL Testing
-This project is made to test graphics rendering with OpenGL. GLFW is used to get platform independent access to windows and OpenGL contexts, and GLEW is used to automatically find libraries needed by GLFW. 
-
+# Artsy
+Lightweight art / animation tool.
 # Building
 The main build system is premake, however, GLEW already supplies its own Makefiles which I do not wish to overwrite. Therefore, it must be build seperately, and first. 
 

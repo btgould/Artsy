@@ -5,23 +5,24 @@
 #include <fstream>
 #include <sstream>
 
-#include "glutil.hpp"
-#include "VertexBuffer.hpp"
-#include "IndexBuffer.hpp"
-#include "VertexArray.hpp"
-#include "Shader.hpp"
-#include "Renderer.hpp"
-#include "Texture.hpp"
-
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
-int main(void) {
+#include "glutil.hpp"
+#include "Buffers/VertexBuffer.hpp"
+#include "Buffers/IndexBuffer.hpp"
+#include "Buffers/VertexArray.hpp"
 
-	GLFWwindow* window;
+#include "Rendering/Shader.hpp"
+#include "Rendering/Renderer.hpp"
+#include "Rendering/Texture.hpp"
+
+#include "Application/Application.hpp"
+
+int main(void) {
 
 	/* Initialize the library */
 	if (!glfwInit()) {
@@ -33,23 +34,16 @@ int main(void) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
-	if (!window) {
-		GL_CALL(glfwTerminate());
-		std::cout << "[ERROR]: Window could not be created" << std::endl;
-		return -1;
-	}
+	// creates an OpenGL window and initializes the context
+	Application app;
 
-	/* Make the window's context current */
-	GL_CALL(glfwMakeContextCurrent(window));
+	class LoggingLayer : public Layer {
+		void OnEvent(Event& e) {
+			std::cout << e << std::endl;
+		}
+	};
 
-	// don't update buffers more than once per screen update
-	glfwSwapInterval(1);
-
-	// enable blending transparent values
-	GL_CALL(glEnable(GL_BLEND));
-	GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	app.PushLayer(new LoggingLayer());
 
 	if (glewInit() != GLEW_OK)
 		std::cout << "[ERROR]: GLEW failed to initialize" << std::endl;
@@ -83,7 +77,7 @@ int main(void) {
 	// model matrix describes transform of object being drawn
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0));
 	// view matrix describes transform of camera
-	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 	// projection matrix maps vertex positions to rendering space([-1, 1])
 	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
 
@@ -103,52 +97,62 @@ int main(void) {
 
 	Renderer renderer;
 
-	ImGui::CreateContext();
-	ImGui_ImplGlfwGL3_Init(window, true);
-	ImGui::StyleColorsDark();
-
 	glm::vec3 translation(200, 200, 0);
 
-	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window)) {
-		/* Render here */
-		renderer.Clear();
+	class RendererLayer : public Layer {
+		void OnUpdate() {
+			ImGui_ImplGlfwGL3_NewFrame();
 
-		ImGui_ImplGlfwGL3_NewFrame();
+			{
+				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+							1000.0f / ImGui::GetIO().Framerate,
+							ImGui::GetIO().Framerate);
+			}
 
-		model = glm::translate(glm::mat4(1.0f), translation);
-		mvp = proj * view * model;
-
-		shader.Bind();
-		shader.SetUniformMat4f("u_MVP", mvp);
-
-		renderer.Draw(va, ib, shader);
-
-		// 1. Show a simple window.
-		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets
-		// automatically appears in a window called "Debug".
-		{
-			static float f = 0.0f;
-
-			ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-						1000.0f / ImGui::GetIO().Framerate,
-						ImGui::GetIO().Framerate);
+			ImGui::Render();
+			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 		}
+	};
 
-		ImGui::Render();
-		ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+	app.PushLayer(new RendererLayer());
 
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
+	app.run();
 
-		/* Poll for and process events */
-		glfwPollEvents();
-	}
+	/* Loop until the user closes the window */
+	// while (!glfwWindowShouldClose(window)) {
+	// 	/* Render here */
+	// 	renderer.Clear();
 
-	ImGui_ImplGlfwGL3_Shutdown();
-	ImGui::DestroyContext();
-	glfwTerminate();
+	// 	ImGui_ImplGlfwGL3_NewFrame();
+
+	// 	model = glm::translate(glm::mat4(1.0f), translation);
+	// 	mvp = proj * view * model;
+
+	// 	shader.Bind();
+	// 	shader.SetUniformMat4f("u_MVP", mvp);
+
+	// 	renderer.Draw(va, ib, shader);
+
+	// 	// 1. Show a simple window.
+	// 	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets
+	// 	// automatically appears in a window called "Debug".
+	// 	{
+	// 		ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);
+
+	// 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+	// 					1000.0f / ImGui::GetIO().Framerate,
+	// 					ImGui::GetIO().Framerate);
+	// 	}
+
+	// 	ImGui::Render();
+	// 	ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+
+	// 	/* Swap front and back buffers */
+	// 	glfwSwapBuffers(window);
+
+	// 	/* Poll for and process events */
+	// 	glfwPollEvents();
+	// }
+
 	return 0;
 }

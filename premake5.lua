@@ -13,6 +13,8 @@ project "Sandbox"
     language "C++"
     staticruntime "On"
 
+    pchheader "artsypch.hpp"
+
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
@@ -26,8 +28,7 @@ project "Sandbox"
     includedirs {
         "Dependencies/GLFW/include",
         "Dependencies/GLEW/include",
-        "Sandbox/include",
-        "Sandbox/vendor"
+        "Sandbox/**"
     }
 
     -- buildoptions { "'pkg-config --cflags glfw3'" }
