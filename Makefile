@@ -12,18 +12,21 @@ endif
 
 ifeq ($(config),debug)
   GLFW_config = debug
+  ImGui_config = debug
   Sandbox_config = debug
 endif
 ifeq ($(config),release)
   GLFW_config = release
+  ImGui_config = release
   Sandbox_config = release
 endif
 ifeq ($(config),dist)
   GLFW_config = dist
+  ImGui_config = dist
   Sandbox_config = dist
 endif
 
-PROJECTS := GLFW Sandbox
+PROJECTS := GLFW ImGui Sandbox
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -35,7 +38,13 @@ ifneq (,$(GLFW_config))
 	@${MAKE} --no-print-directory -C Dependencies/GLFW -f Makefile config=$(GLFW_config)
 endif
 
-Sandbox: GLFW
+ImGui:
+ifneq (,$(ImGui_config))
+	@echo "==== Building ImGui ($(ImGui_config)) ===="
+	@${MAKE} --no-print-directory -C Sandbox/vendor/imgui -f Makefile config=$(ImGui_config)
+endif
+
+Sandbox: GLFW ImGui
 ifneq (,$(Sandbox_config))
 	@echo "==== Building Sandbox ($(Sandbox_config)) ===="
 	@${MAKE} --no-print-directory -C Sandbox -f Makefile config=$(Sandbox_config)
@@ -43,6 +52,7 @@ endif
 
 clean:
 	@${MAKE} --no-print-directory -C Dependencies/GLFW -f Makefile clean
+	@${MAKE} --no-print-directory -C Sandbox/vendor/imgui -f Makefile clean
 	@${MAKE} --no-print-directory -C Sandbox -f Makefile clean
 
 help:
@@ -57,6 +67,7 @@ help:
 	@echo "   all (default)"
 	@echo "   clean"
 	@echo "   GLFW"
+	@echo "   ImGui"
 	@echo "   Sandbox"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"

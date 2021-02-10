@@ -10,8 +10,8 @@ struct WindowProps {
 	unsigned int Width;
 	unsigned int Height;
 
-	WindowProps(const std::string& title = "Nutella Engine",
-				unsigned int width = 940, unsigned int height = 600)
+	WindowProps(const std::string& title = "Artsy", unsigned int width = 940,
+				unsigned int height = 600)
 		: Title(title), Width(width), Height(height) {}
 };
 

@@ -1,15 +1,21 @@
 #include "artsypch.hpp"
 
+#include "Core.hpp"
+
 #include "Application.hpp"
 
 #include "Events/Event.hpp"
 
 #include "GLFW/glfw3.h"
 
-#define BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
+Application* Application::s_Instance = nullptr;
 
 Application::Application() {
 	// creates an OpenGL window + initializes contex
+	ARTSY_CORE_ASSERT(!s_Instance,
+					  "Cannot create multiple instances of Application class");
+	s_Instance = this;
+
 	m_Window = std::unique_ptr<Window>(Window::Create());
 	m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 }
@@ -41,10 +47,22 @@ void Application::run() {
 
 void Application::PushLayer(Layer* layer) {
 	m_LayerStack.PushLayer(layer);
+	layer->OnAttach();
 }
 
 void Application::PopLayer(Layer* layer) {
 	m_LayerStack.PopLayer(layer);
+	layer->OnDetach();
+}
+
+void Application::PushOverlay(Layer* overlay) {
+	m_LayerStack.PushOverlay(overlay);
+	overlay->OnAttach();
+}
+
+void Application::PopOverlay(Layer* overlay) {
+	m_LayerStack.PopOverlay(overlay);
+	overlay->OnDetach();
 }
 
 bool Application::OnWindowClose(WindowClosedEvent& e) {

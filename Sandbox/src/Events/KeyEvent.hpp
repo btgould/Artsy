@@ -58,3 +58,17 @@ class KeyReleasedEvent : public KeyEvent {
 
 	EVENT_CLASS_TYPE(KeyReleased)
 };
+
+class KeyTypedEvent : public KeyEvent {
+  public:
+	// constructs a new key typed event with the given code
+	KeyTypedEvent(int keycode) : KeyEvent(keycode) {};
+
+	std::string ToString() const override {
+		std::stringstream ss;
+		ss << "KeyTypedEvent Code: " << m_KeyCode;
+		return ss.str();
+	}
+
+	EVENT_CLASS_TYPE(KeyTyped);
+};

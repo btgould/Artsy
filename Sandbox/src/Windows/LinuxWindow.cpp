@@ -7,7 +7,6 @@
 #include "Events/MouseEvent.hpp"
 
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw_gl3.h"
 
 static bool s_GLFWInitialized = false;
 
@@ -22,18 +21,10 @@ Window* Window::Create(const WindowProps& props) {
 
 LinuxWindow::LinuxWindow(const WindowProps& props) {
 	Init(props);
-
-	// FIXME: this stops mouse pressed and key pressed events from going through
-	ImGui::CreateContext();
-	ImGui_ImplGlfwGL3_Init(m_Window, true);
-	ImGui::StyleColorsDark();
 }
 
 LinuxWindow::~LinuxWindow() {
 	Shutdown();
-
-	ImGui_ImplGlfwGL3_Shutdown();
-	ImGui::DestroyContext();
 	glfwTerminate();
 }
 
@@ -119,6 +110,12 @@ void LinuxWindow::Init(const WindowProps& props) {
 			std::cout << "Key action type unrecognized" << std::endl;
 			break;
 		}
+	});
+
+	glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode) {
+		WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+		KeyTypedEvent event(keycode);
+		data.EventCallback(event);
 	});
 
 	glfwSetMouseButtonCallback(

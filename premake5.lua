@@ -5,6 +5,7 @@ workspace "OpenGL"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 include "Dependencies/GLFW"
+include "Sandbox/vendor/imgui"
 
 project "Sandbox"
     location "Sandbox"
@@ -15,28 +16,30 @@ project "Sandbox"
 
     pchheader "artsypch.hpp"
 
+    symbols "On"
+
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
     files {
         "%{prj.location}/src/**.cpp",
         "%{prj.location}/vendor/stb_image/stb_image.cpp",
-        "%{prj.location}/vendor/imgui/*.cpp",
-        "%{prj.location}/vendor/imgui/*.h"
     }
+
+    removefiles "%{prj.location}/src/Drawing/**"
 
     includedirs {
         "Dependencies/GLFW/include",
         "Dependencies/GLEW/include",
-        "Sandbox/**"
+        "Sandbox/src", 
+        "Sandbox/vendor"
     }
-
-    -- buildoptions { "'pkg-config --cflags glfw3'" }
 
     libdirs { "Dependencies/GLEW/lib" }
 
     links {
-        "GLFW", "GL", "dl", ":libGLEW.a" -- prefer static linking GLEW
+        "GLFW", "GL", "dl", ":libGLEW.a", -- prefer static linking GLEW
+        "ImGui"
     }
 
     linkoptions { 

@@ -18,15 +18,15 @@ ifeq ($(config),debug)
   PCH = src/artsypch.hpp
   GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Ivendor -Ires -Isrc -Ivendor/stb_image -Ivendor/imgui -Ires/shaders -Ires/textures -Isrc/Events -Isrc/Application -Isrc/Windows -Isrc/Buffers -Isrc/Rendering
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
-  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
-  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64
+  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
+  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../Dependencies/GLFW/bin/Debug-linux-x86_64/GLFW/libGLFW.a -lGL -ldl -l:libGLEW.a
-  LDDEPS += ../Dependencies/GLFW/bin/Debug-linux-x86_64/GLFW/libGLFW.a
-  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -s -pthread
+  LIBS += ../Dependencies/GLFW/bin/Debug-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Debug-linux-x86_64/ImGui/libImGui.a -lGL -ldl -l:libGLEW.a
+  LDDEPS += ../Dependencies/GLFW/bin/Debug-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Debug-linux-x86_64/ImGui/libImGui.a
+  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -pthread
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -47,15 +47,15 @@ ifeq ($(config),release)
   PCH = src/artsypch.hpp
   GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Ivendor -Ires -Isrc -Ivendor/stb_image -Ivendor/imgui -Ires/shaders -Ires/textures -Isrc/Events -Isrc/Application -Isrc/Windows -Isrc/Buffers -Isrc/Rendering
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
-  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
-  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64
+  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
+  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../Dependencies/GLFW/bin/Release-linux-x86_64/GLFW/libGLFW.a -lGL -ldl -l:libGLEW.a
-  LDDEPS += ../Dependencies/GLFW/bin/Release-linux-x86_64/GLFW/libGLFW.a
-  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -s -pthread
+  LIBS += ../Dependencies/GLFW/bin/Release-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Release-linux-x86_64/ImGui/libImGui.a -lGL -ldl -l:libGLEW.a
+  LDDEPS += ../Dependencies/GLFW/bin/Release-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Release-linux-x86_64/ImGui/libImGui.a
+  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -pthread
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -76,15 +76,15 @@ ifeq ($(config),dist)
   PCH = src/artsypch.hpp
   GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Ivendor -Ires -Isrc -Ivendor/stb_image -Ivendor/imgui -Ires/shaders -Ires/textures -Isrc/Events -Isrc/Application -Isrc/Windows -Isrc/Buffers -Isrc/Rendering
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
-  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64
-  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64
+  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
+  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../Dependencies/GLFW/bin/Dist-linux-x86_64/GLFW/libGLFW.a -lGL -ldl -l:libGLEW.a
-  LDDEPS += ../Dependencies/GLFW/bin/Dist-linux-x86_64/GLFW/libGLFW.a
-  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -s -pthread
+  LIBS += ../Dependencies/GLFW/bin/Dist-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Dist-linux-x86_64/ImGui/libImGui.a -lGL -ldl -l:libGLEW.a
+  LDDEPS += ../Dependencies/GLFW/bin/Dist-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Dist-linux-x86_64/ImGui/libImGui.a
+  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -pthread
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -105,14 +105,12 @@ OBJECTS := \
 	$(OBJDIR)/VertexArray.o \
 	$(OBJDIR)/VertexBuffer.o \
 	$(OBJDIR)/Main.o \
+	$(OBJDIR)/ImGuiOpenGLRenderer.o \
 	$(OBJDIR)/Renderer.o \
 	$(OBJDIR)/Shader.o \
 	$(OBJDIR)/Texture.o \
+	$(OBJDIR)/ImGuiLayer.o \
 	$(OBJDIR)/LinuxWindow.o \
-	$(OBJDIR)/imgui.o \
-	$(OBJDIR)/imgui_demo.o \
-	$(OBJDIR)/imgui_draw.o \
-	$(OBJDIR)/imgui_impl_glfw_gl3.o \
 	$(OBJDIR)/stb_image.o \
 
 RESOURCES := \
@@ -193,6 +191,9 @@ $(OBJDIR)/VertexBuffer.o: src/Buffers/VertexBuffer.cpp
 $(OBJDIR)/Main.o: src/Main.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ImGuiOpenGLRenderer.o: src/OpenGL/ImGuiOpenGLRenderer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Renderer.o: src/Rendering/Renderer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -202,19 +203,10 @@ $(OBJDIR)/Shader.o: src/Rendering/Shader.cpp
 $(OBJDIR)/Texture.o: src/Rendering/Texture.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ImGuiLayer.o: src/Windows/ImGuiLayer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/LinuxWindow.o: src/Windows/LinuxWindow.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/imgui.o: vendor/imgui/imgui.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/imgui_demo.o: vendor/imgui/imgui_demo.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/imgui_draw.o: vendor/imgui/imgui_draw.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/imgui_impl_glfw_gl3.o: vendor/imgui/imgui_impl_glfw_gl3.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/stb_image.o: vendor/stb_image/stb_image.cpp
