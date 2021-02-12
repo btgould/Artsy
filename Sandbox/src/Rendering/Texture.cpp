@@ -16,12 +16,13 @@ Texture::Texture(const std::string& path)
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 
 	// tell OpenGL how to deal with textures
+	// linear interpolation from texels to pixels when shrinking / growing
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GL_CALL(
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-	GL_CALL(
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+							GL_CLAMP_TO_EDGE)); // stretch x coord to edge
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+							GL_CLAMP_TO_EDGE)); // stretch x coord to edge
 
 	// writes a 2D image to the currently bound texture
 	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0,

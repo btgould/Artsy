@@ -8,6 +8,7 @@
 #include "Application/Application.hpp"
 
 #include "Windows/ImGuiLayer.hpp"
+#include "Drawing/DrawLayer.hpp"
 
 int main(void) {
 
@@ -24,8 +25,7 @@ int main(void) {
 	Application app;
 
 	if (glewInit() != GLEW_OK)
-		std::cout << "[EIMGUI_IMPL_APIRROR]: GLEW failed to initialize"
-				  << std::endl;
+		std::cout << "[ERROR]: GLEW failed to initialize" << std::endl;
 
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
@@ -36,6 +36,7 @@ int main(void) {
 	};
 
 	app.PushLayer(new LoggingLayer());
+	app.PushLayer(new DrawLayer(400, 400));
 
 	app.PushOverlay(new ImGuiLayer());
 

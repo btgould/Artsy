@@ -104,6 +104,8 @@ OBJECTS := \
 	$(OBJDIR)/IndexBuffer.o \
 	$(OBJDIR)/VertexArray.o \
 	$(OBJDIR)/VertexBuffer.o \
+	$(OBJDIR)/ByteBuffer.o \
+	$(OBJDIR)/DrawLayer.o \
 	$(OBJDIR)/Main.o \
 	$(OBJDIR)/ImGuiOpenGLRenderer.o \
 	$(OBJDIR)/Renderer.o \
@@ -186,6 +188,12 @@ $(OBJDIR)/VertexArray.o: src/Buffers/VertexArray.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/VertexBuffer.o: src/Buffers/VertexBuffer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/ByteBuffer.o: src/Drawing/ByteBuffer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/DrawLayer.o: src/Drawing/DrawLayer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Main.o: src/Main.cpp
