@@ -7,8 +7,7 @@
 
 DrawLayer::DrawLayer(int width, int height)
 	: m_Width(width), m_Height(height),
-	  shader("Sandbox/res/shaders/Basic.shader"),
-	  texture("Sandbox/res/textures/Code.png") {
+	  shader("Sandbox/res/shaders/Basic.shader") {
 
 	// This HAS to be a float array, or OpenGL misinterprets it
 	float drawCorners[] = {
