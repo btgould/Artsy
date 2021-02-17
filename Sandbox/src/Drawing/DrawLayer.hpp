@@ -10,6 +10,11 @@
 #include "Rendering/Shader.hpp"
 #include "Rendering/Texture.hpp"
 
+#include "Events/Event.hpp"
+#include "Events/MouseEvent.hpp"
+
+#include "glm/vec2.hpp"
+
 class DrawLayer : public Layer {
   private:
 	static constexpr float LEFT_DRAW_BOUND = 100.0;
@@ -19,19 +24,30 @@ class DrawLayer : public Layer {
 
 	void* m_Data;
 
+	// TODO: mouseButtonPressedEvents should be able to get mouse coords
+	int mouseX;
+	int mouseY;
+
+	Texture texture;
+	Color drawColor;
+
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
 	VertexBufferLayout* layout;
 	VertexArray* vertexArray;
 
-	Texture texture;
-
 	Renderer renderer;
 	Shader shader;
+
+	glm::vec2 pixelToTexel(float x, float y);
+
+	bool OnMouseClick(MouseButtonPressedEvent& e);
+	bool OnMouseMove(MouseMovedEvent& e);
 
   public:
 	DrawLayer(int width, int height);
 	~DrawLayer();
 
+	void OnEvent(Event& e) override;
 	void OnUpdate() override;
 };

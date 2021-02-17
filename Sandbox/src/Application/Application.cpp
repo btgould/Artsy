@@ -23,7 +23,7 @@ Application::Application() {
 Application::~Application() {}
 
 void Application::OnEvent(Event& e) {
-	EventDistpatcher dispatcher(e);
+	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<WindowClosedEvent>(
 		BIND_EVENT_FN(Application::OnWindowClose));
 

@@ -78,7 +78,7 @@ void ImGuiLayer::OnUpdate() {
 }
 
 void ImGuiLayer::OnEvent(Event& event) {
-	EventDistpatcher dispatcher(event);
+	EventDispatcher dispatcher(event);
 
 	// bind dispatch functions for mouse button events
 	dispatcher.Dispatch<MouseButtonPressedEvent>(

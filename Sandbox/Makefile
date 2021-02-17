@@ -105,6 +105,7 @@ OBJECTS := \
 	$(OBJDIR)/VertexArray.o \
 	$(OBJDIR)/VertexBuffer.o \
 	$(OBJDIR)/ByteBuffer.o \
+	$(OBJDIR)/Color.o \
 	$(OBJDIR)/DrawLayer.o \
 	$(OBJDIR)/Main.o \
 	$(OBJDIR)/ImGuiOpenGLRenderer.o \
@@ -191,6 +192,9 @@ $(OBJDIR)/VertexBuffer.o: src/Buffers/VertexBuffer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ByteBuffer.o: src/Drawing/ByteBuffer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Color.o: src/Drawing/Color.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/DrawLayer.o: src/Drawing/DrawLayer.cpp

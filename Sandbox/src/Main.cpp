@@ -35,7 +35,7 @@ int main(void) {
 		}
 	};
 
-	app.PushLayer(new LoggingLayer());
+	// app.PushLayer(new LoggingLayer());
 	app.PushLayer(new DrawLayer(400, 400));
 
 	app.PushOverlay(new ImGuiLayer());
