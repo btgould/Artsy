@@ -11,9 +11,9 @@
 DrawLayer::DrawLayer(int width, int height)
 	: m_Width(width), m_Height(height),
 	  shader("Sandbox/res/shaders/Basic.shader"),
-	  texture(20, 20), /*,
+	  texture(20, 20) /*,
 	  texture("Sandbox/res/textures/Code.png"), */
-	  drawColor(255, 0, 0, 255) {
+{
 	// This HAS to be a float array, or OpenGL misinterprets it
 	float drawCorners[] = {
 		LEFT_DRAW_BOUND,		 LOWER_DRAW_BOUND,			0, 0, // 0
@@ -65,6 +65,8 @@ void DrawLayer::OnEvent(Event& e) {
 	dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseMove));
 	dispatcher.Dispatch<MouseButtonPressedEvent>(
 		BIND_EVENT_FN(DrawLayer::OnMouseClick));
+	dispatcher.Dispatch<MouseButtonReleasedEvent>(
+		BIND_EVENT_FN(DrawLayer::OnMouseRelease));
 }
 
 void DrawLayer::OnUpdate() {
@@ -73,8 +75,9 @@ void DrawLayer::OnUpdate() {
 }
 
 glm::vec2 DrawLayer::pixelToTexel(float x, float y) {
-	int texelX = (x - LEFT_DRAW_BOUND) / texture.GetXRes();
-	int texelY = (LOWER_DRAW_BOUND + m_Height - y) / texture.GetYRes();
+	int texelX = (x - LEFT_DRAW_BOUND) * texture.GetXRes() / m_Width;
+	int texelY =
+		(LOWER_DRAW_BOUND + m_Height - y) * texture.GetYRes() / m_Height;
 
 	// check if outside draw area
 	// TODO: I need a better way to signal this
@@ -88,15 +91,34 @@ glm::vec2 DrawLayer::pixelToTexel(float x, float y) {
 }
 
 bool DrawLayer::OnMouseClick(MouseButtonPressedEvent& e) {
-	glm::vec2 texelCoords = pixelToTexel(mouseX, mouseY);
-	std::cout << "Texel Clicked: " << texelCoords.x << ", " << texelCoords.y
-			  << std::endl;
-	texture.write(texelCoords.x, texelCoords.y, drawColor);
+	if (e.GetMouseButton() == 0) {
+		glm::vec2 texelCoords = pixelToTexel(mouseX, mouseY);
+		std::cout << "Texel Clicked: " << texelCoords.x << ", " << texelCoords.y
+				  << std::endl;
+		texture.write(texelCoords.x, texelCoords.y, drawColor);
+
+		m_Drawing = true;
+	}
+
+	return false;
+}
+
+bool DrawLayer::OnMouseRelease(MouseButtonReleasedEvent& e) {
+	if (e.GetMouseButton() == 0) {
+		m_Drawing = false;
+	}
+
 	return false;
 }
 
 bool DrawLayer::OnMouseMove(MouseMovedEvent& e) {
 	mouseX = e.GetX();
 	mouseY = e.GetY();
+
+	if (m_Drawing) {
+		glm::vec2 texelCoords = pixelToTexel(mouseX, mouseY);
+		texture.write(texelCoords.x, texelCoords.y, drawColor);
+	}
+
 	return false;
 }

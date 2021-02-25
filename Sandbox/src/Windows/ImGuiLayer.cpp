@@ -8,7 +8,7 @@
 
 #include "ImGuiLayer.hpp"
 
-// TEMPORARY
+// TODO: TEMPORARY
 #include <GL/glew.h>
 #include <GLFW/glfw3.h> // keycodes
 
@@ -69,8 +69,11 @@ void ImGuiLayer::OnUpdate() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
 
-	static bool show = true;
-	ImGui::ShowDemoWindow(&show);
+	// static bool show = true;
+	// ImGui::ShowDemoWindow(&show);
+	static float testColor[] = {0.0f, 0.0f, 0.0f};
+
+	ImGui::ColorEdit3("Draw Color", testColor);
 
 	ImGui::Render();
 

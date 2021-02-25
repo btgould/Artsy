@@ -39,9 +39,12 @@ class DrawLayer : public Layer {
 	Renderer renderer;
 	Shader shader;
 
+	bool m_Drawing;
+
 	glm::vec2 pixelToTexel(float x, float y);
 
 	bool OnMouseClick(MouseButtonPressedEvent& e);
+	bool OnMouseRelease(MouseButtonReleasedEvent& e);
 	bool OnMouseMove(MouseMovedEvent& e);
 
   public:
