@@ -32,7 +32,8 @@ project "Sandbox"
         "Dependencies/GLFW/include",
         "Dependencies/GLEW/include",
         "Sandbox/src", 
-        "Sandbox/vendor"
+        "Sandbox/vendor",
+        "Sandbox/vendor/imgui"
     }
 
     libdirs { "Dependencies/GLEW/lib" }

@@ -18,7 +18,7 @@ ifeq ($(config),debug)
   PCH = src/artsypch.hpp
   GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor -Ivendor/imgui
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
@@ -47,7 +47,7 @@ ifeq ($(config),release)
   PCH = src/artsypch.hpp
   GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor -Ivendor/imgui
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
@@ -76,7 +76,7 @@ ifeq ($(config),dist)
   PCH = src/artsypch.hpp
   GCH = $(OBJDIR)/$(notdir $(PCH)).gch
   DEFINES +=
-  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor
+  INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor -Ivendor/imgui
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
@@ -107,8 +107,8 @@ OBJECTS := \
 	$(OBJDIR)/ByteBuffer.o \
 	$(OBJDIR)/Color.o \
 	$(OBJDIR)/DrawLayer.o \
+	$(OBJDIR)/ImGuiBuild.o \
 	$(OBJDIR)/Main.o \
-	$(OBJDIR)/ImGuiOpenGLRenderer.o \
 	$(OBJDIR)/Renderer.o \
 	$(OBJDIR)/Shader.o \
 	$(OBJDIR)/Texture.o \
@@ -200,10 +200,10 @@ $(OBJDIR)/Color.o: src/Drawing/Color.cpp
 $(OBJDIR)/DrawLayer.o: src/Drawing/DrawLayer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/Main.o: src/Main.cpp
+$(OBJDIR)/ImGuiBuild.o: src/ImGui/ImGuiBuild.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/ImGuiOpenGLRenderer.o: src/OpenGL/ImGuiOpenGLRenderer.cpp
+$(OBJDIR)/Main.o: src/Main.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Renderer.o: src/Rendering/Renderer.cpp

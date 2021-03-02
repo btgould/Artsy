@@ -14,4 +14,5 @@ class Color {
 
 	void set(unsigned char red, unsigned char green, unsigned char blue,
 			 unsigned char alpha);
+	void set(Color other);
 };

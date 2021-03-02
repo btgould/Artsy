@@ -29,6 +29,10 @@ class LinuxWindow : public Window {
 	void SetVSync(bool enabled) override;
 	bool IsVSync() const override;
 
+	inline virtual void* getNativeWindow() const {
+		return m_Window;
+	}
+
   private:
 	GLFWwindow* m_Window;
 

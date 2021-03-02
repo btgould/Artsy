@@ -15,3 +15,10 @@ void Color::set(unsigned char red, unsigned char green, unsigned char blue,
 	b = blue;
 	a = alpha;
 }
+
+void Color::set(Color other) {
+	r = other.r;
+	g = other.g;
+	b = other.b;
+	a = other.a;
+}

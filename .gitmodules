@@ -1,0 +1,4 @@
+[submodule "Sandbox/vendor/imgui"]
+	path = Sandbox/vendor/imgui
+	url = https://github.com/TheCherno/imgui.git
+	branch = docking

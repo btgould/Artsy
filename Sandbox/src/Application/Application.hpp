@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Windows/Window.hpp"
+#include "Windows/ImGuiLayer.hpp"
 
 #include "Events/ApplicationEvent.hpp"
 
@@ -32,6 +33,7 @@ class Application {
 	bool OnWindowClose(WindowClosedEvent& e);
 
 	std::unique_ptr<Window> m_Window;
+	ImGuiLayer* m_ImGuiLayer;
 	bool m_Running = true;
 
 	LayerStack m_LayerStack;

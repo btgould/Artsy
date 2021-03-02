@@ -14,6 +14,7 @@
 #include "Events/MouseEvent.hpp"
 
 #include "glm/vec2.hpp"
+#include "imgui/imgui.h"
 
 class DrawLayer : public Layer {
   private:
@@ -30,6 +31,7 @@ class DrawLayer : public Layer {
 
 	Texture texture;
 	Color drawColor;
+	ImVec4 drawColorGui = {0, 0, 0, 1};
 
 	VertexBuffer* vertexBuffer;
 	IndexBuffer* indexBuffer;
@@ -53,4 +55,5 @@ class DrawLayer : public Layer {
 
 	void OnEvent(Event& e) override;
 	void OnUpdate() override;
+	void OnImGuiRender() override;
 };

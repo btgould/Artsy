@@ -9,7 +9,7 @@
 #include "iostream"
 
 DrawLayer::DrawLayer(int width, int height)
-	: m_Width(width), m_Height(height),
+	: m_Width(width), m_Height(height), m_Drawing(false),
 	  shader("Sandbox/res/shaders/Basic.shader"),
 	  texture(20, 20) /*,
 	  texture("Sandbox/res/textures/Code.png"), */
@@ -72,6 +72,15 @@ void DrawLayer::OnEvent(Event& e) {
 void DrawLayer::OnUpdate() {
 	renderer.Clear();
 	renderer.Draw(*vertexArray, *indexBuffer, shader);
+}
+
+void DrawLayer::OnImGuiRender() {
+	// BUG: for some reason, transparency does not work in the color preview
+	ImGui::ColorEdit4("Draw Color", &drawColorGui.x);
+	drawColor.set((unsigned char) (drawColorGui.x * 255),
+				  (unsigned char) (drawColorGui.y * 255),
+				  (unsigned char) (drawColorGui.z * 255),
+				  (unsigned char) (drawColorGui.w * 255));
 }
 
 glm::vec2 DrawLayer::pixelToTexel(float x, float y) {
