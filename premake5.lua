@@ -26,8 +26,6 @@ project "Sandbox"
         "%{prj.location}/vendor/stb_image/stb_image.cpp",
     }
 
-    -- removefiles "%{prj.location}/src/Drawing/**"
-
     includedirs {
         "Dependencies/GLFW/include",
         "Dependencies/GLEW/include",

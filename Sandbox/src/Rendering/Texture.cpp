@@ -2,13 +2,14 @@
 
 #include "stb_image/stb_image.h"
 
-Texture::Texture(int width, int height)
-	: m_RendererID(0), xRes(width), yRes(height), m_BPP(4) {
+#include "Core.hpp"
+
+Texture::Texture(int width, int height) : m_RendererID(0), xRes(width), yRes(height), m_BPP(4) {
 
 	m_LocalBuffer = (Color*) malloc(xRes * yRes * m_BPP);
 
 	for (int i = 0; i < xRes * yRes; i++) {
-		m_LocalBuffer[i].set(0, 0, i * 255 / (xRes * yRes), 255);
+		m_LocalBuffer[i].set(255, 255, 255, 255);
 	}
 
 	// create + bind texture object
@@ -25,8 +26,8 @@ Texture::Texture(int width, int height)
 							GL_CLAMP_TO_EDGE)); // stretch y coord to edge
 
 	// writes a 2D image to the currently bound texture
-	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xRes, yRes, 0, GL_RGBA,
-						 GL_UNSIGNED_BYTE, m_LocalBuffer));
+	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xRes, yRes, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+						 m_LocalBuffer));
 
 	// unbind texture
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
@@ -54,8 +55,8 @@ Texture::Texture(const std::string& path)
 							GL_CLAMP_TO_EDGE)); // stretch y coord to edge
 
 	// writes a 2D image to the currently bound texture
-	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xRes, yRes, 0, GL_RGBA,
-						 GL_UNSIGNED_BYTE, m_LocalBuffer));
+	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xRes, yRes, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+						 m_LocalBuffer));
 
 	// unbind texture
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
@@ -78,17 +79,19 @@ void Texture::Unbind() const {
 }
 
 void Texture::write(int texelX, int texelY, Color color) {
-	// TODO: This should check for whatever signal I decide to use
-	// TODO: This should also be aware of blending with whatever color is
+	// TODO: This should be aware of blending with whatever color is
 	// already there (maybe?)
-	if (texelX == -1 && texelY == -1) {
-		std::cout << "[WARNING]: Attempting to draw outside draw area"
-				  << std::endl;
+	if (texelX < 0 || texelX > xRes || texelY < 0 || texelY > yRes) {
+		ARTSY_ASSERT(false, "Attempting to draw outside draw area");
 		return;
 	}
 
 	m_LocalBuffer[texelX + xRes * texelY].set(color);
 	// Bind();
-	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xRes, yRes, 0, GL_RGBA,
-						 GL_UNSIGNED_BYTE, m_LocalBuffer));
+	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xRes, yRes, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+						 m_LocalBuffer));
+}
+
+Color& Texture::get(int texelX, int texelY) {
+	return m_LocalBuffer[texelX + xRes * texelY];
 }

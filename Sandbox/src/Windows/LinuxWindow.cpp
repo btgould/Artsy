@@ -11,8 +11,7 @@
 static bool s_GLFWInitialized = false;
 
 static void GLFWErrorCallback(int errorCode, const char* description) {
-	std::cout << "GLFW Error (" << errorCode << "): " << description
-			  << std::endl;
+	std::cout << "GLFW Error (" << errorCode << "): " << description << std::endl;
 }
 
 Window* Window::Create(const WindowProps& props) {
@@ -33,8 +32,8 @@ void LinuxWindow::Init(const WindowProps& props) {
 	m_Data.Title = props.Title;
 	m_Data.Width = props.Width;
 	m_Data.Height = props.Height;
-	std::cout << "Creating window " << props.Title << "(" << props.Width << ", "
-			  << props.Height << ")" << std::endl;
+	std::cout << "Creating window " << props.Title << "(" << props.Width << ", " << props.Height
+			  << ")" << std::endl;
 
 	// check if GLFW needs to be initialized
 	if (!s_GLFWInitialized) {
@@ -47,17 +46,16 @@ void LinuxWindow::Init(const WindowProps& props) {
 	}
 
 	// create new GLFW window
-	m_Window = glfwCreateWindow((int) props.Width, (int) props.Height,
-								m_Data.Title.c_str(), nullptr, nullptr);
+	m_Window = glfwCreateWindow((int) props.Width, (int) props.Height, m_Data.Title.c_str(),
+								nullptr, nullptr);
 	if (!m_Window) {
 		GL_CALL(glfwTerminate());
 		std::cout << "[ERROR]: Window could not be created" << std::endl;
 	}
 
 	GL_CALL(glfwMakeContextCurrent(m_Window));
-	GL_CALL(glfwSetWindowUserPointer(
-		m_Window,
-		&m_Data)); // associates our window data w/ GLFW
+	GL_CALL(glfwSetWindowUserPointer(m_Window,
+									 &m_Data)); // associates our window data w/ GLFW
 	SetVSync(true);
 
 	// enable blending transparent values
@@ -66,15 +64,14 @@ void LinuxWindow::Init(const WindowProps& props) {
 
 	// set GLFW callbacks
 	// 1. Create Nutella event from GLFW data, 2. pass to m_Data's callback
-	glfwSetWindowSizeCallback(
-		m_Window, [](GLFWwindow* window, int width, int height) {
-			WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
-			WindowResizedEvent event(width, height);
+	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+		WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+		WindowResizedEvent event(width, height);
 
-			data.Width = width;
-			data.Height = height;
-			data.EventCallback(event);
-		});
+		data.Width = width;
+		data.Height = height;
+		data.EventCallback(event);
+	});
 
 	glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
 		WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
@@ -83,34 +80,34 @@ void LinuxWindow::Init(const WindowProps& props) {
 		data.EventCallback(event);
 	});
 
-	glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int keycode,
-									int scancode, int action, int mods) {
-		WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+	glfwSetKeyCallback(m_Window,
+					   [](GLFWwindow* window, int keycode, int scancode, int action, int mods) {
+						   WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-		switch (action) {
-			{
-			case GLFW_PRESS:
-				KeyPressedEvent event(keycode, 0);
-				data.EventCallback(event);
-				break;
-			}
-			{
-			case GLFW_RELEASE:
-				KeyReleasedEvent event(keycode);
-				data.EventCallback(event);
-				break;
-			}
-			{
-			case GLFW_REPEAT:
-				KeyPressedEvent event(keycode, 1);
-				data.EventCallback(event);
-				break;
-			}
-		default:
-			std::cout << "Key action type unrecognized" << std::endl;
-			break;
-		}
-	});
+						   switch (action) {
+							   {
+							   case GLFW_PRESS:
+								   KeyPressedEvent event(keycode, 0, mods);
+								   data.EventCallback(event);
+								   break;
+							   }
+							   {
+							   case GLFW_RELEASE:
+								   KeyReleasedEvent event(keycode, mods);
+								   data.EventCallback(event);
+								   break;
+							   }
+							   {
+							   case GLFW_REPEAT:
+								   KeyPressedEvent event(keycode, 1, mods);
+								   data.EventCallback(event);
+								   break;
+							   }
+						   default:
+							   std::cout << "Key action type unrecognized" << std::endl;
+							   break;
+						   }
+					   });
 
 	glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode) {
 		WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
@@ -118,44 +115,41 @@ void LinuxWindow::Init(const WindowProps& props) {
 		data.EventCallback(event);
 	});
 
-	glfwSetMouseButtonCallback(
-		m_Window, [](GLFWwindow* window, int button, int action, int mods) {
-			WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+	glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
+		WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-			switch (action) {
-				{
-				case GLFW_PRESS:
-					MouseButtonPressedEvent event(button);
-					data.EventCallback(event);
-					break;
-				}
-				{
-				case GLFW_RELEASE:
-					MouseButtonReleasedEvent event(button);
-					data.EventCallback(event);
-					break;
-				}
-			default:
-				std::cout << "Mouse action type unrecognized" << std::endl;
+		switch (action) {
+			{
+			case GLFW_PRESS:
+				MouseButtonPressedEvent event(button);
+				data.EventCallback(event);
 				break;
 			}
-		});
+			{
+			case GLFW_RELEASE:
+				MouseButtonReleasedEvent event(button);
+				data.EventCallback(event);
+				break;
+			}
+		default:
+			std::cout << "Mouse action type unrecognized" << std::endl;
+			break;
+		}
+	});
 
-	glfwSetCursorPosCallback(
-		m_Window, [](GLFWwindow* window, double xPos, double yPos) {
-			WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos) {
+		WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-			MouseMovedEvent event((float) xPos, (float) yPos);
-			data.EventCallback(event);
-		});
+		MouseMovedEvent event((float) xPos, (float) yPos);
+		data.EventCallback(event);
+	});
 
-	glfwSetScrollCallback(
-		m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
-			WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
+	glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
+		WindowData& data = *(WindowData*) glfwGetWindowUserPointer(window);
 
-			MouseScrolledEvent event((float) xOffset, (float) yOffset);
-			data.EventCallback(event);
-		});
+		MouseScrolledEvent event((float) xOffset, (float) yOffset);
+		data.EventCallback(event);
+	});
 }
 
 void LinuxWindow::InitGLFW() {}

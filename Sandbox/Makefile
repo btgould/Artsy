@@ -107,6 +107,7 @@ OBJECTS := \
 	$(OBJDIR)/ByteBuffer.o \
 	$(OBJDIR)/Color.o \
 	$(OBJDIR)/DrawLayer.o \
+	$(OBJDIR)/UndoRedo.o \
 	$(OBJDIR)/ImGuiBuild.o \
 	$(OBJDIR)/Main.o \
 	$(OBJDIR)/Renderer.o \
@@ -198,6 +199,9 @@ $(OBJDIR)/Color.o: src/Drawing/Color.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/DrawLayer.o: src/Drawing/DrawLayer.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/UndoRedo.o: src/Drawing/UndoRedo.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ImGuiBuild.o: src/ImGui/ImGuiBuild.cpp

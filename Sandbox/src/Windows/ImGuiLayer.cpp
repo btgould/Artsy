@@ -11,9 +11,8 @@
 
 #include "ImGuiLayer.hpp"
 
-// TODO: TEMPORARY
-#include <GL/glew.h>
-#include <GLFW/glfw3.h> // keycodes
+// TEMP: needed for keycodes
+#include <GLFW/glfw3.h>
 
 ImGuiLayer::ImGuiLayer() : Layer("ImGui Layer"), app(Application::get()) {}
 
@@ -24,9 +23,7 @@ void ImGuiLayer::OnAttach() {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
-	(void) io;
-	io.ConfigFlags |=
-		ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
 	// io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable
 	// Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
@@ -47,8 +44,7 @@ void ImGuiLayer::OnAttach() {
 	}
 
 	Application& app = Application::get();
-	GLFWwindow* window =
-		static_cast<GLFWwindow*>(app.getWindow().getNativeWindow());
+	GLFWwindow* window = static_cast<GLFWwindow*>(app.getWindow().getNativeWindow());
 
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -64,6 +60,7 @@ void ImGuiLayer::OnDetach() {
 void ImGuiLayer::OnImGuiRender() {
 	// static bool show = true;
 	// ImGui::ShowDemoWindow(&show);
+	ImGui::ShowMetricsWindow();
 }
 
 void ImGuiLayer::begin() {
@@ -75,8 +72,7 @@ void ImGuiLayer::begin() {
 void ImGuiLayer::end() {
 	ImGuiIO& io = ImGui::GetIO();
 	Application& app = Application::get();
-	io.DisplaySize =
-		ImVec2(app.getWindow().GetWidth(), app.getWindow().GetHeight());
+	io.DisplaySize = ImVec2(app.getWindow().GetWidth(), app.getWindow().GetHeight());
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -10,12 +10,21 @@ class KeyEvent : public Event {
 		return m_KeyCode;
 	}
 
+	inline int GetMods() {
+		return m_Mods;
+	}
+
+	inline bool modDown(int mod) {
+		return mod & m_Mods;
+	}
+
 	EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 
   protected:
-	KeyEvent(int keycode) : m_KeyCode(keycode) {}
+	KeyEvent(int keycode, int mods = 0) : m_KeyCode(keycode), m_Mods(mods) {}
 
 	int m_KeyCode;
+	int m_Mods;
 };
 
 // class representing a key pressed event
@@ -23,18 +32,17 @@ class KeyPressedEvent : public KeyEvent {
   public:
 	// constructs a new key pressed event with the given code and repeat
 	// count
-	KeyPressedEvent(int keycode, int repeatCount)
-		: KeyEvent(keycode), m_RepeatCount(repeatCount) {};
+	KeyPressedEvent(int keycode, int repeatCount, int mods = 0)
+		: KeyEvent(keycode, mods), m_RepeatCount(repeatCount) {};
 
-	// gets the amount of times the event should repeat when the key is held
+	// gets the amount of times the event has repeated
 	inline int GetRepeatCount() {
 		return m_RepeatCount;
 	}
 
 	std::string ToString() const override {
 		std::stringstream ss;
-		ss << "KeyPressedEvent Code: " << m_KeyCode << " (" << m_RepeatCount
-		   << " repeats)";
+		ss << "KeyPressedEvent Code: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
 		return ss.str();
 	}
 
@@ -48,7 +56,7 @@ class KeyPressedEvent : public KeyEvent {
 class KeyReleasedEvent : public KeyEvent {
   public:
 	// constructs a new key released event with the given code
-	KeyReleasedEvent(int keycode) : KeyEvent(keycode) {};
+	KeyReleasedEvent(int keycode, int mods = 0) : KeyEvent(keycode, mods) {};
 
 	std::string ToString() const override {
 		std::stringstream ss;
@@ -62,7 +70,7 @@ class KeyReleasedEvent : public KeyEvent {
 class KeyTypedEvent : public KeyEvent {
   public:
 	// constructs a new key typed event with the given code
-	KeyTypedEvent(int keycode) : KeyEvent(keycode) {};
+	KeyTypedEvent(int keycode, int mods = 0) : KeyEvent(keycode, mods) {};
 
 	std::string ToString() const override {
 		std::stringstream ss;

@@ -1,17 +1,17 @@
 #include <signal.h>
 
-#ifdef ARTYS_ENABLE_ASSERTS
-	#define ARTSY_ASSERT(x, ...)                                               \
-		{                                                                      \
-			if (!(x)) {                                                        \
-				raise(SIGINT);                                                 \
-			}                                                                  \
+#ifdef ARTSY_ENABLE_ASSERTS
+	#define ARTSY_ASSERT(x, ...)                                                                   \
+		{                                                                                          \
+			if (!(x)) {                                                                            \
+				raise(SIGINT);                                                                     \
+			}                                                                                      \
 		}
-	#define ARTSY_CORE_ASSERT(x, ...)                                          \
-		{                                                                      \
-			if (!(x)) {                                                        \
-				raise(SIGINT);                                                 \
-			}                                                                  \
+	#define ARTSY_CORE_ASSERT(x, ...)                                                              \
+		{                                                                                          \
+			if (!(x)) {                                                                            \
+				raise(SIGINT);                                                                     \
+			}                                                                                      \
 		}
 #else
 	#define ARTSY_ASSERT(x, ...)

@@ -1,7 +1,10 @@
 #include "Drawing/DrawLayer.hpp"
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+// TEMP: needed for key mods in key pressed callback
+#include <GLFW/glfw3.h>
 
 #include "Core.hpp"
 // #include "Application/Application.hpp"
@@ -10,10 +13,8 @@
 
 DrawLayer::DrawLayer(int width, int height)
 	: m_Width(width), m_Height(height), m_Drawing(false),
-	  shader("Sandbox/res/shaders/Basic.shader"),
-	  texture(20, 20) /*,
-	  texture("Sandbox/res/textures/Code.png"), */
-{
+	  shader("Sandbox/res/shaders/Basic.shader"), texture(50, 50)
+/*texture("Sandbox/res/textures/Code.png")*/ {
 	// This HAS to be a float array, or OpenGL misinterprets it
 	float drawCorners[] = {
 		LEFT_DRAW_BOUND,		 LOWER_DRAW_BOUND,			0, 0, // 0
@@ -59,14 +60,42 @@ DrawLayer::~DrawLayer() {
 	delete vertexArray;
 }
 
+void DrawLayer::undoOperation(const Operation* const ops) {
+	if (ops) {
+		int i = 0;
+
+		while (ops[i].getType() != OPTYPE_MOUSE_UP) {
+			Color newColor = texture.get(ops[i].getPxChanged().x, ops[i].getPxChanged().y) -
+							 ops[i].getColorDiff();
+
+			texture.write(ops[i].getPxChanged().x, ops[i].getPxChanged().y, newColor);
+			i++;
+		}
+	}
+}
+
+void DrawLayer::redoOperation(const Operation* const ops) {
+	if (ops) {
+		int i = 0;
+
+		while (ops[i].getType() != OPTYPE_MOUSE_UP) {
+			Color newColor = texture.get(ops[i].getPxChanged().x, ops[i].getPxChanged().y) +
+							 ops[i].getColorDiff();
+
+			texture.write(ops[i].getPxChanged().x, ops[i].getPxChanged().y, newColor);
+			i++;
+		}
+	}
+}
+
 void DrawLayer::OnEvent(Event& e) {
 	EventDispatcher dispatcher(e);
 
 	dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseMove));
-	dispatcher.Dispatch<MouseButtonPressedEvent>(
-		BIND_EVENT_FN(DrawLayer::OnMouseClick));
-	dispatcher.Dispatch<MouseButtonReleasedEvent>(
-		BIND_EVENT_FN(DrawLayer::OnMouseRelease));
+	dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseClick));
+	dispatcher.Dispatch<MouseButtonReleasedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseRelease));
+
+	dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(DrawLayer::OnKeyPress));
 }
 
 void DrawLayer::OnUpdate() {
@@ -77,44 +106,86 @@ void DrawLayer::OnUpdate() {
 void DrawLayer::OnImGuiRender() {
 	// BUG: for some reason, transparency does not work in the color preview
 	ImGui::ColorEdit4("Draw Color", &drawColorGui.x);
-	drawColor.set((unsigned char) (drawColorGui.x * 255),
-				  (unsigned char) (drawColorGui.y * 255),
-				  (unsigned char) (drawColorGui.z * 255),
-				  (unsigned char) (drawColorGui.w * 255));
-}
+	drawColor.set((unsigned char) (drawColorGui.x * 255), (unsigned char) (drawColorGui.y * 255),
+				  (unsigned char) (drawColorGui.z * 255), (unsigned char) (drawColorGui.w * 255));
 
-glm::vec2 DrawLayer::pixelToTexel(float x, float y) {
-	int texelX = (x - LEFT_DRAW_BOUND) * texture.GetXRes() / m_Width;
-	int texelY =
-		(LOWER_DRAW_BOUND + m_Height - y) * texture.GetYRes() / m_Height;
-
-	// check if outside draw area
-	// TODO: I need a better way to signal this
-	if (texelX < 0 || texelX >= texture.GetXRes() || texelY < 0 ||
-		texelY >= texture.GetYRes()) {
-		texelX = -1;
-		texelY = -1;
+	if (ImGui::Button("Undo")) {
+		undoOperation(undoStack.popUndo());
 	}
 
-	return glm::vec2(texelX, texelY);
+	ImGui::SameLine();
+
+	if (ImGui::Button("Redo")) {
+		redoOperation(undoStack.popRedo());
+	}
+}
+
+TexelCoords DrawLayer::pixelToTexel(float x, float y) {
+	int texelX = (x - LEFT_DRAW_BOUND) * texture.GetXRes() / m_Width;
+	int texelY = (LOWER_DRAW_BOUND + m_Height - y) * texture.GetYRes() / m_Height;
+
+	TexelCoords txCoords(true, glm::vec2(texelX, texelY));
+
+	// check if outside draw area
+	if (texelX < 0 || texelX >= texture.GetXRes() || texelY < 0 || texelY >= texture.GetYRes()) {
+		txCoords.onTex = false;
+	}
+
+	return txCoords;
 }
 
 bool DrawLayer::OnMouseClick(MouseButtonPressedEvent& e) {
-	if (e.GetMouseButton() == 0) {
-		glm::vec2 texelCoords = pixelToTexel(mouseX, mouseY);
-		std::cout << "Texel Clicked: " << texelCoords.x << ", " << texelCoords.y
-				  << std::endl;
-		texture.write(texelCoords.x, texelCoords.y, drawColor);
+	ImGuiIO& io = ImGui::GetIO();
 
-		m_Drawing = true;
+	// checks if over ImGui window
+	if (io.WantCaptureMouse) {
+		return true;
+	}
+
+	if (e.GetMouseButton() == 0) {
+		TexelCoords txCoords = pixelToTexel(mouseX, mouseY);
+		// std::cout << "Texel Clicked: " << texelCoords.x << ", " << texelCoords.y << std::endl;
+
+		if (txCoords.onTex) {
+			glm::vec2 pxChanged = txCoords.coords;
+
+			// check if operation actually changes anything
+			Color oldColor = texture.get(pxChanged.x, pxChanged.y);
+
+			if (oldColor != drawColor) {
+				// save operation to local buffer
+				localOpStack[currOpSize] =
+					Operation(OPTYPE_MOUSE_DOWN, pxChanged, drawColor - oldColor);
+				currOpSize++;
+
+				// write draw color to texture
+				texture.write(txCoords.coords.x, txCoords.coords.y, drawColor);
+			}
+
+			m_Drawing = true;
+		}
 	}
 
 	return false;
 }
 
 bool DrawLayer::OnMouseRelease(MouseButtonReleasedEvent& e) {
-	if (e.GetMouseButton() == 0) {
+	ImGuiIO& io = ImGui::GetIO();
+
+	// checks if over ImGui window
+	if (io.WantCaptureMouse) {
+		return true;
+	}
+
+	if (e.GetMouseButton() == 0 && m_Drawing) {
 		m_Drawing = false;
+
+		// cap + push operation if needed
+		if (currOpSize != 0) {
+			localOpStack[currOpSize] = Operation(OPTYPE_MOUSE_UP, glm::vec2(0, 0), Color());
+			undoStack.pushUndo(localOpStack);
+			currOpSize = 0;
+		}
 	}
 
 	return false;
@@ -125,8 +196,40 @@ bool DrawLayer::OnMouseMove(MouseMovedEvent& e) {
 	mouseY = e.GetY();
 
 	if (m_Drawing) {
-		glm::vec2 texelCoords = pixelToTexel(mouseX, mouseY);
-		texture.write(texelCoords.x, texelCoords.y, drawColor);
+		TexelCoords txCoords = pixelToTexel(mouseX, mouseY);
+
+		if (txCoords.onTex) {
+			glm::vec2 pxChanged = txCoords.coords;
+
+			// check if operation actually changes anything
+			Color oldColor = texture.get(pxChanged.x, pxChanged.y);
+
+			if (oldColor != drawColor) {
+				// save operation to local buffer
+				localOpStack[currOpSize] = Operation(OPTYPE_DRAW, pxChanged, drawColor - oldColor);
+				currOpSize++;
+
+				// write draw color to texture
+				texture.write(txCoords.coords.x, txCoords.coords.y, drawColor);
+			}
+		}
+	}
+
+	return false;
+}
+
+bool DrawLayer::OnKeyPress(KeyPressedEvent& e) {
+	int key = e.GetKeyCode();
+
+	// TODO: find a better way of binding actions to keys
+	if (key == GLFW_KEY_Z) {
+		if (e.modDown(GLFW_MOD_CONTROL)) {
+			if (e.modDown(GLFW_MOD_SHIFT)) {
+				redoOperation(undoStack.popRedo());
+			} else {
+				undoOperation(undoStack.popUndo());
+			}
+		}
 	}
 
 	return false;

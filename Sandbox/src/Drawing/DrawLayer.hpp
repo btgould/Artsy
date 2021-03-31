@@ -12,6 +12,9 @@
 
 #include "Events/Event.hpp"
 #include "Events/MouseEvent.hpp"
+#include "Events/KeyEvent.hpp"
+
+#include "Drawing/UndoRedo.hpp"
 
 #include "glm/vec2.hpp"
 #include "imgui/imgui.h"
@@ -22,8 +25,6 @@ class DrawLayer : public Layer {
 	static constexpr float LOWER_DRAW_BOUND = 100.0;
 	int m_Width;
 	int m_Height;
-
-	void* m_Data;
 
 	// TODO: mouseButtonPressedEvents should be able to get mouse coords
 	int mouseX;
@@ -43,15 +44,24 @@ class DrawLayer : public Layer {
 
 	bool m_Drawing;
 
-	glm::vec2 pixelToTexel(float x, float y);
+	Operation localOpStack[50 * 50 + 1];
+	unsigned int currOpSize = 0;
+	OperationStack undoStack;
+
+	TexelCoords pixelToTexel(float x, float y);
 
 	bool OnMouseClick(MouseButtonPressedEvent& e);
 	bool OnMouseRelease(MouseButtonReleasedEvent& e);
 	bool OnMouseMove(MouseMovedEvent& e);
 
+	bool OnKeyPress(KeyPressedEvent& e);
+
   public:
 	DrawLayer(int width, int height);
 	~DrawLayer();
+
+	void undoOperation(const Operation* const ops);
+	void redoOperation(const Operation* const ops);
 
 	void OnEvent(Event& e) override;
 	void OnUpdate() override;
