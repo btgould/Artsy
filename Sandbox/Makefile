@@ -22,7 +22,7 @@ ifeq ($(config),debug)
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
-  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g
+  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
   LIBS += ../Dependencies/GLFW/bin/Debug-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Debug-linux-x86_64/ImGui/libImGui.a -lGL -ldl -l:libGLEW.a
   LDDEPS += ../Dependencies/GLFW/bin/Debug-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Debug-linux-x86_64/ImGui/libImGui.a
@@ -51,7 +51,7 @@ ifeq ($(config),release)
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
-  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g
+  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
   LIBS += ../Dependencies/GLFW/bin/Release-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Release-linux-x86_64/ImGui/libImGui.a -lGL -ldl -l:libGLEW.a
   LDDEPS += ../Dependencies/GLFW/bin/Release-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Release-linux-x86_64/ImGui/libImGui.a
@@ -80,7 +80,7 @@ ifeq ($(config),dist)
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
-  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g
+  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
   LIBS += ../Dependencies/GLFW/bin/Dist-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Dist-linux-x86_64/ImGui/libImGui.a -lGL -ldl -l:libGLEW.a
   LDDEPS += ../Dependencies/GLFW/bin/Dist-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Dist-linux-x86_64/ImGui/libImGui.a
@@ -104,7 +104,6 @@ OBJECTS := \
 	$(OBJDIR)/IndexBuffer.o \
 	$(OBJDIR)/VertexArray.o \
 	$(OBJDIR)/VertexBuffer.o \
-	$(OBJDIR)/ByteBuffer.o \
 	$(OBJDIR)/Color.o \
 	$(OBJDIR)/DrawLayer.o \
 	$(OBJDIR)/UndoRedo.o \
@@ -116,6 +115,7 @@ OBJECTS := \
 	$(OBJDIR)/ImGuiLayer.o \
 	$(OBJDIR)/LinuxWindow.o \
 	$(OBJDIR)/stb_image.o \
+	$(OBJDIR)/stb_image_write.o \
 
 RESOURCES := \
 
@@ -192,9 +192,6 @@ $(OBJDIR)/VertexArray.o: src/Buffers/VertexArray.cpp
 $(OBJDIR)/VertexBuffer.o: src/Buffers/VertexBuffer.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/ByteBuffer.o: src/Drawing/ByteBuffer.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Color.o: src/Drawing/Color.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
@@ -226,6 +223,9 @@ $(OBJDIR)/LinuxWindow.o: src/Windows/LinuxWindow.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/stb_image.o: vendor/stb_image/stb_image.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/stb_image_write.o: vendor/stb_image/stb_image_write.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 

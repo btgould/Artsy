@@ -30,12 +30,20 @@ class Texture {
 	void Bind(unsigned int slot = 0) const;
 	void Unbind() const;
 
+	inline Color* getData() const {
+		return m_LocalBuffer;
+	}
+
 	inline int GetXRes() const {
 		return xRes;
 	}
 
 	inline int GetYRes() const {
 		return yRes;
+	}
+
+	inline int getComp() const {
+		return m_BPP;
 	}
 
 	void write(int texelX, int texelY, Color color);

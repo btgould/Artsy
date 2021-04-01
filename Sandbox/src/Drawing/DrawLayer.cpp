@@ -7,9 +7,10 @@
 #include <GLFW/glfw3.h>
 
 #include "Core.hpp"
-// #include "Application/Application.hpp"
-
 #include "iostream"
+
+#include "stb_image/stb_image_write.h"
+#include "ImGui/L2DFileDialog.h"
 
 DrawLayer::DrawLayer(int width, int height)
 	: m_Width(width), m_Height(height), m_Drawing(false),
@@ -51,6 +52,8 @@ DrawLayer::DrawLayer(int width, int height)
 
 	texture.Bind(0);
 	shader.SetUniform1i("u_Texture", 0);
+
+	stbi_flip_vertically_on_write(true);
 }
 
 DrawLayer::~DrawLayer() {
@@ -118,6 +121,29 @@ void DrawLayer::OnImGuiRender() {
 	if (ImGui::Button("Redo")) {
 		redoOperation(undoStack.popRedo());
 	}
+
+	if (ImGui::Button("Save")) {
+		FileDialog::fileDialogOpen = true;
+	}
+
+	if (FileDialog::fileDialogOpen == true) {
+		char filename[128] = "";
+		bool open = true;
+		FileDialog::ShowFileDialog(&open, filename, 128, FileDialog::FileDialogType::SaveFile);
+
+		if (strlen(filename) != 0) {
+			// filename was determined by file dialog -> save
+			if (!strstr(filename, ".png")) {
+				// need to add extension
+				strncat(filename, ".png", 128 - strlen(filename));
+			}
+
+			// w = num horiz px, h = num vert px, comp = num data channels per px,
+			// stride_in_bytes = num bytes from start of one row to start of next
+			stbi_write_png(filename, texture.GetXRes(), texture.GetYRes(), 4, texture.getData(),
+						   texture.getComp() * texture.GetXRes());
+		}
+	}
 }
 
 TexelCoords DrawLayer::pixelToTexel(float x, float y) {
@@ -154,6 +180,8 @@ bool DrawLayer::OnMouseClick(MouseButtonPressedEvent& e) {
 
 			if (oldColor != drawColor) {
 				// save operation to local buffer
+				// BUG: if the rest of the operation does change something, it will be ignored by
+				// the undo stack because it has no mouse down
 				localOpStack[currOpSize] =
 					Operation(OPTYPE_MOUSE_DOWN, pxChanged, drawColor - oldColor);
 				currOpSize++;

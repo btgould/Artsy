@@ -12,6 +12,7 @@ project "Sandbox"
     kind "ConsoleApp"
 
     language "C++"
+    cppdialect "C++17"
     staticruntime "On"
 
     pchheader "artsypch.hpp"
@@ -24,6 +25,7 @@ project "Sandbox"
     files {
         "%{prj.location}/src/**.cpp",
         "%{prj.location}/vendor/stb_image/stb_image.cpp",
+        "%{prj.location}/vendor/stb_image/stb_image_write.cpp"
     }
 
     includedirs {
