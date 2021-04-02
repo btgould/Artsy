@@ -10,12 +10,11 @@
 #include "iostream"
 
 #include "stb_image/stb_image_write.h"
-#include "ImGui/L2DFileDialog.h"
 
 DrawLayer::DrawLayer(int width, int height)
 	: m_Width(width), m_Height(height), m_Drawing(false),
-	  shader("Sandbox/res/shaders/Basic.shader"), texture(50, 50)
-/*texture("Sandbox/res/textures/Code.png")*/ {
+	  fileDialogType(FileDialog::FileDialogType::NoOp), shader("Sandbox/res/shaders/Basic.shader"),
+	  texture(50, 50) {
 	// This HAS to be a float array, or OpenGL misinterprets it
 	float drawCorners[] = {
 		LEFT_DRAW_BOUND,		 LOWER_DRAW_BOUND,			0, 0, // 0
@@ -124,24 +123,36 @@ void DrawLayer::OnImGuiRender() {
 
 	if (ImGui::Button("Save")) {
 		FileDialog::fileDialogOpen = true;
+		fileDialogType = FileDialog::FileDialogType::SaveFile;
 	}
 
+	ImGui::SameLine();
+
+	if (ImGui::Button("Load")) {
+		FileDialog::fileDialogOpen = true;
+		fileDialogType = FileDialog::FileDialogType::OpenFile;
+	}
+
+	// display file system if needed
 	if (FileDialog::fileDialogOpen == true) {
 		char filename[128] = "";
 		bool open = true;
-		FileDialog::ShowFileDialog(&open, filename, 128, FileDialog::FileDialogType::SaveFile);
+		FileDialog::ShowFileDialog(&open, filename, 128, fileDialogType);
 
-		if (strlen(filename) != 0) {
-			// filename was determined by file dialog -> save
-			if (!strstr(filename, ".png")) {
-				// need to add extension
-				strncat(filename, ".png", 128 - strlen(filename));
+		if (strlen(filename) != 0) { // filename was determined by file dialog -> process file
+			if (fileDialogType == FileDialog::FileDialogType::SaveFile) {
+				if (!strstr(filename, ".png")) {
+					// does not have extension -> need to add
+					strncat(filename, ".png", 128 - strlen(filename));
+				}
+
+				// w = num horiz px, h = num vert px, comp = num data channels per px,
+				// stride_in_bytes = num bytes from start of one row to start of next
+				stbi_write_png(filename, texture.GetXRes(), texture.GetYRes(), texture.getComp(),
+							   texture.getData(), texture.getComp() * texture.GetXRes());
+			} else if (fileDialogType == FileDialog::FileDialogType::OpenFile) {
+				texture.Set(std::string(filename));
 			}
-
-			// w = num horiz px, h = num vert px, comp = num data channels per px,
-			// stride_in_bytes = num bytes from start of one row to start of next
-			stbi_write_png(filename, texture.GetXRes(), texture.GetYRes(), 4, texture.getData(),
-						   texture.getComp() * texture.GetXRes());
 		}
 	}
 }

@@ -30,6 +30,8 @@ class Texture {
 	void Bind(unsigned int slot = 0) const;
 	void Unbind() const;
 
+	void Set(std::string path);
+
 	inline Color* getData() const {
 		return m_LocalBuffer;
 	}

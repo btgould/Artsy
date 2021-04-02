@@ -16,6 +16,8 @@
 
 #include "Drawing/UndoRedo.hpp"
 
+#include "ImGui/L2DFileDialog.h"
+
 #include "glm/vec2.hpp"
 #include "imgui/imgui.h"
 
@@ -47,6 +49,8 @@ class DrawLayer : public Layer {
 	Operation localOpStack[50 * 50 + 1];
 	unsigned int currOpSize = 0;
 	OperationStack undoStack;
+
+	FileDialog::FileDialogType fileDialogType;
 
 	TexelCoords pixelToTexel(float x, float y);
 

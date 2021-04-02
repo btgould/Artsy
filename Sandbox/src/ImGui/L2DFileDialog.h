@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include <imgui.h>
-#include <imgui_internal.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 #include <chrono>
 #include <filesystem>
@@ -37,8 +37,8 @@ namespace FileDialog {
 
 	static bool fileDialogOpen = false;
 
-	void ShowFileDialog(bool* open, char* buffer, unsigned int bufferSize,
-						FileDialogType type = FileDialogType::OpenFile) {
+	inline void ShowFileDialog(bool* open, char* buffer, unsigned int bufferSize,
+							   FileDialogType type = FileDialogType::OpenFile) {
 		static int fileDialogFileSelectIndex = 0;
 		static int fileDialogFolderSelectIndex = 0;
 		static std::string fileDialogCurrentPath = std::filesystem::current_path().string();
@@ -346,13 +346,15 @@ namespace FileDialog {
 				if (ImGui::Button("Open")) {
 					if (fileDialogCurrentFile == "") {
 						strncpy(fileDialogError, "Error: You must select a file!", 500);
+					} else if (fileDialogCurrentFile.rfind(".png") == std::string::npos) {
+						strncpy(fileDialogError, "Error: You may only load a png!", 500);
 					} else {
 						strncpy(buffer,
 								(fileDialogCurrentPath +
 								 (fileDialogCurrentPath.back() == filepathSeperator.back()
 									  ? ""
 									  : filepathSeperator) +
-								 fileDialogCurrentFolder)
+								 fileDialogCurrentFile)
 									.c_str(),
 								bufferSize);
 						fileDialogFileSelectIndex = 0;
@@ -360,18 +362,15 @@ namespace FileDialog {
 						fileDialogCurrentFile = "";
 						fileDialogOpen = false;
 					}
-
-					if (strlen(fileDialogError) > 0) {
-						ImGui::TextColored(ImColor(1.0f, 0.0f, 0.2f, 1.0f), "%s", fileDialogError);
-					}
-				}
-			} else if (type == FileDialogType::SaveFile) { // option to save file
-				if (ImGui::Button("Save")) {
-					ImGui::OpenPopup("SaveFilePopup");
 				}
 
 				if (strlen(fileDialogError) > 0) {
 					ImGui::TextColored(ImColor(1.0f, 0.0f, 0.2f, 1.0f), "%s", fileDialogError);
+				}
+
+			} else if (type == FileDialogType::SaveFile) { // option to save file
+				if (ImGui::Button("Save")) {
+					ImGui::OpenPopup("SaveFilePopup");
 				}
 			} else {
 			}
@@ -382,6 +381,7 @@ namespace FileDialog {
 				static char newFileName[500] = "";
 				static char newFileError[500] = "";
 
+				ImGui::Text("Saving to %s", fileDialogCurrentPath.c_str());
 				ImGui::Text("Enter a name for the file:");
 
 				ImGui::InputText("", newFileName, sizeof(newFileName));

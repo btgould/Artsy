@@ -17,7 +17,7 @@ Texture::Texture(int width, int height) : m_RendererID(0), xRes(width), yRes(hei
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 
 	// tell OpenGL how to deal with textures
-	// linear interpolation from texels to pixels when shrinking / growing
+	// do not interpolate from texels to pixels when shrinking / growing
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
@@ -46,9 +46,9 @@ Texture::Texture(const std::string& path)
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 
 	// tell OpenGL how to deal with textures
-	// linear interpolation from texels to pixels when shrinking / growing
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	// do not interpolate from texels to pixels when shrinking / growing
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
 							GL_CLAMP_TO_EDGE)); // stretch x coord to edge
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
@@ -76,6 +76,20 @@ void Texture::Bind(unsigned int slot /* = 0*/) const {
 
 void Texture::Unbind() const {
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void Texture::Set(std::string path) {
+	// free old memory
+	stbi_image_free(m_LocalBuffer);
+
+	// read new image into memory
+	stbi_set_flip_vertically_on_load(1); // OpenGL bottom-left is 0, 0
+	m_LocalBuffer = (Color*) stbi_load(path.c_str(), &xRes, &yRes, &m_BPP, 4);
+
+	// bind + write to texture
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
+	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xRes, yRes, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+						 m_LocalBuffer));
 }
 
 void Texture::write(int texelX, int texelY, Color color) {

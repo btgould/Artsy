@@ -29,12 +29,6 @@ int main(void) {
 
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
-	class LoggingLayer : public Layer {
-		void OnEvent(Event& e) {
-			std::cout << e << std::endl;
-		}
-	};
-
 	// app.PushLayer(new LoggingLayer());
 	app.PushLayer(new DrawLayer(400, 400));
 
