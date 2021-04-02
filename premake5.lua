@@ -17,8 +17,6 @@ project "Sandbox"
 
     pchheader "artsypch.hpp"
 
-    symbols "On"
-
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
@@ -46,3 +44,13 @@ project "Sandbox"
     linkoptions { 
         "-pthread"
     }
+
+    filter "configurations:Debug"
+        defines "ARTSY_ENABLE_ASSERTS"
+        symbols "On"
+
+    filter "configurations:Release"
+        optimize "On"
+
+    filter "configurations:Dist"
+        optimize "On"

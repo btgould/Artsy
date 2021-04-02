@@ -62,44 +62,6 @@ DrawLayer::~DrawLayer() {
 	delete vertexArray;
 }
 
-void DrawLayer::undoOperation(const Operation* const ops) {
-	if (ops) {
-		int i = 0;
-
-		while (ops[i].getType() != OPTYPE_MOUSE_UP) {
-			Color newColor = texture.get(ops[i].getPxChanged().x, ops[i].getPxChanged().y) -
-							 ops[i].getColorDiff();
-
-			texture.write(ops[i].getPxChanged().x, ops[i].getPxChanged().y, newColor);
-			i++;
-		}
-	}
-}
-
-void DrawLayer::redoOperation(const Operation* const ops) {
-	if (ops) {
-		int i = 0;
-
-		while (ops[i].getType() != OPTYPE_MOUSE_UP) {
-			Color newColor = texture.get(ops[i].getPxChanged().x, ops[i].getPxChanged().y) +
-							 ops[i].getColorDiff();
-
-			texture.write(ops[i].getPxChanged().x, ops[i].getPxChanged().y, newColor);
-			i++;
-		}
-	}
-}
-
-void DrawLayer::OnEvent(Event& e) {
-	EventDispatcher dispatcher(e);
-
-	dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseMove));
-	dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseClick));
-	dispatcher.Dispatch<MouseButtonReleasedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseRelease));
-
-	dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(DrawLayer::OnKeyPress));
-}
-
 void DrawLayer::OnUpdate() {
 	renderer.Clear();
 	renderer.Draw(*vertexArray, *indexBuffer, shader);
@@ -157,18 +119,14 @@ void DrawLayer::OnImGuiRender() {
 	}
 }
 
-TexelCoords DrawLayer::pixelToTexel(float x, float y) {
-	int texelX = (x - LEFT_DRAW_BOUND) * texture.GetXRes() / m_Width;
-	int texelY = (LOWER_DRAW_BOUND + m_Height - y) * texture.GetYRes() / m_Height;
+void DrawLayer::OnEvent(Event& e) {
+	EventDispatcher dispatcher(e);
 
-	TexelCoords txCoords(true, glm::vec2(texelX, texelY));
+	dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseMove));
+	dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseClick));
+	dispatcher.Dispatch<MouseButtonReleasedEvent>(BIND_EVENT_FN(DrawLayer::OnMouseRelease));
 
-	// check if outside draw area
-	if (texelX < 0 || texelX >= texture.GetXRes() || texelY < 0 || texelY >= texture.GetYRes()) {
-		txCoords.onTex = false;
-	}
-
-	return txCoords;
+	dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(DrawLayer::OnKeyPress));
 }
 
 bool DrawLayer::OnMouseClick(MouseButtonPressedEvent& e) {
@@ -191,8 +149,6 @@ bool DrawLayer::OnMouseClick(MouseButtonPressedEvent& e) {
 
 			if (oldColor != drawColor) {
 				// save operation to local buffer
-				// BUG: if the rest of the operation does change something, it will be ignored by
-				// the undo stack because it has no mouse down
 				localOpStack[currOpSize] =
 					Operation(OPTYPE_MOUSE_DOWN, pxChanged, drawColor - oldColor);
 				currOpSize++;
@@ -245,7 +201,8 @@ bool DrawLayer::OnMouseMove(MouseMovedEvent& e) {
 
 			if (oldColor != drawColor) {
 				// save operation to local buffer
-				localOpStack[currOpSize] = Operation(OPTYPE_DRAW, pxChanged, drawColor - oldColor);
+				OperationType type = (currOpSize == 0) ? OPTYPE_MOUSE_DOWN : OPTYPE_DRAW;
+				localOpStack[currOpSize] = Operation(type, pxChanged, drawColor - oldColor);
 				currOpSize++;
 
 				// write draw color to texture
@@ -272,4 +229,46 @@ bool DrawLayer::OnKeyPress(KeyPressedEvent& e) {
 	}
 
 	return false;
+}
+
+TexelCoords DrawLayer::pixelToTexel(float x, float y) {
+	int texelX = (x - LEFT_DRAW_BOUND) * texture.GetXRes() / m_Width;
+	int texelY = (LOWER_DRAW_BOUND + m_Height - y) * texture.GetYRes() / m_Height;
+
+	TexelCoords txCoords(true, glm::vec2(texelX, texelY));
+
+	// check if outside draw area
+	if (texelX < 0 || texelX >= texture.GetXRes() || texelY < 0 || texelY >= texture.GetYRes()) {
+		txCoords.onTex = false;
+	}
+
+	return txCoords;
+}
+
+void DrawLayer::undoOperation(const Operation* const ops) {
+	if (ops) {
+		int i = 0;
+
+		while (ops[i].getType() != OPTYPE_MOUSE_UP) {
+			Color newColor = texture.get(ops[i].getPxChanged().x, ops[i].getPxChanged().y) -
+							 ops[i].getColorDiff();
+
+			texture.write(ops[i].getPxChanged().x, ops[i].getPxChanged().y, newColor);
+			i++;
+		}
+	}
+}
+
+void DrawLayer::redoOperation(const Operation* const ops) {
+	if (ops) {
+		int i = 0;
+
+		while (ops[i].getType() != OPTYPE_MOUSE_UP) {
+			Color newColor = texture.get(ops[i].getPxChanged().x, ops[i].getPxChanged().y) +
+							 ops[i].getColorDiff();
+
+			texture.write(ops[i].getPxChanged().x, ops[i].getPxChanged().y, newColor);
+			i++;
+		}
+	}
 }

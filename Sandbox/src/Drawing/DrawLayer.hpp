@@ -46,26 +46,26 @@ class DrawLayer : public Layer {
 
 	bool m_Drawing;
 
+	// TEMP: this should be determined by size of current texture
 	Operation localOpStack[50 * 50 + 1];
 	unsigned int currOpSize = 0;
 	OperationStack undoStack;
 
 	FileDialog::FileDialogType fileDialogType;
 
-	TexelCoords pixelToTexel(float x, float y);
-
 	bool OnMouseClick(MouseButtonPressedEvent& e);
 	bool OnMouseRelease(MouseButtonReleasedEvent& e);
 	bool OnMouseMove(MouseMovedEvent& e);
-
 	bool OnKeyPress(KeyPressedEvent& e);
+
+	TexelCoords pixelToTexel(float x, float y);
+
+	void undoOperation(const Operation* const ops);
+	void redoOperation(const Operation* const ops);
 
   public:
 	DrawLayer(int width, int height);
 	~DrawLayer();
-
-	void undoOperation(const Operation* const ops);
-	void redoOperation(const Operation* const ops);
 
 	void OnEvent(Event& e) override;
 	void OnUpdate() override;

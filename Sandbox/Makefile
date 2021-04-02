@@ -17,7 +17,7 @@ ifeq ($(config),debug)
   OBJDIR = ../bin-int/Debug-linux-x86_64/Sandbox
   PCH = src/artsypch.hpp
   GCH = $(OBJDIR)/$(notdir $(PCH)).gch
-  DEFINES +=
+  DEFINES += -DARTSY_ENABLE_ASSERTS
   INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor -Ivendor/imgui
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
@@ -50,12 +50,12 @@ ifeq ($(config),release)
   INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor -Ivendor/imgui
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
-  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
-  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
+  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
+  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
   LIBS += ../Dependencies/GLFW/bin/Release-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Release-linux-x86_64/ImGui/libImGui.a -lGL -ldl -l:libGLEW.a
   LDDEPS += ../Dependencies/GLFW/bin/Release-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Release-linux-x86_64/ImGui/libImGui.a
-  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -pthread
+  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -s -pthread
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -79,12 +79,12 @@ ifeq ($(config),dist)
   INCLUDES += -I../Dependencies/GLFW/include -I../Dependencies/GLEW/include -Isrc -Ivendor -Ivendor/imgui
   FORCE_INCLUDE += -include $(OBJDIR)/$(notdir $(PCH))
   ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
-  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
-  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
+  ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
+  ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
   LIBS += ../Dependencies/GLFW/bin/Dist-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Dist-linux-x86_64/ImGui/libImGui.a -lGL -ldl -l:libGLEW.a
   LDDEPS += ../Dependencies/GLFW/bin/Dist-linux-x86_64/GLFW/libGLFW.a vendor/imgui/bin/Dist-linux-x86_64/ImGui/libImGui.a
-  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -pthread
+  ALL_LDFLAGS += $(LDFLAGS) -L../Dependencies/GLEW/lib -L/usr/lib64 -m64 -s -pthread
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef

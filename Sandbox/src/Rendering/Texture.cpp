@@ -101,7 +101,6 @@ void Texture::write(int texelX, int texelY, Color color) {
 	}
 
 	m_LocalBuffer[texelX + xRes * texelY].set(color);
-	// Bind();
 	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, xRes, yRes, 0, GL_RGBA, GL_UNSIGNED_BYTE,
 						 m_LocalBuffer));
 }
