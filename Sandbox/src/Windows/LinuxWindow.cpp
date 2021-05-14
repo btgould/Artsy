@@ -7,6 +7,7 @@
 #include "Events/MouseEvent.hpp"
 
 #include "imgui/imgui.h"
+#include "stb_image/stb_image.h"
 
 static bool s_GLFWInitialized = false;
 
@@ -52,6 +53,13 @@ void LinuxWindow::Init(const WindowProps& props) {
 		GL_CALL(glfwTerminate());
 		std::cout << "[ERROR]: Window could not be created" << std::endl;
 	}
+
+	// set window icon
+	GLFWimage images[1];
+	images[0].pixels = stbi_load("dog.png", &images[0].width, &images[0].height, 0,
+								 4); // rgba channels
+	glfwSetWindowIcon(m_Window, 1, images);
+	stbi_image_free(images[0].pixels);
 
 	GL_CALL(glfwMakeContextCurrent(m_Window));
 	GL_CALL(glfwSetWindowUserPointer(m_Window,
